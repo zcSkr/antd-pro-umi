@@ -25,22 +25,24 @@ function formatter(data, parentAuthority, parentName) {
   // console.log(data, parentAuthority, parentName)
   return data
     .map(item => {
-      let locale = 'menu';
-      if (parentName && item.name) {
-        locale = `${parentName}.${item.name}`;
-      } else if (item.name) {
-        locale = `menu.${item.name}`;
-      } else if (parentName) {
-        locale = parentName;
-      }
+      // let locale = 'menu';
+      // if (parentName && item.name) {
+      //   locale = `${parentName}.${item.name}`;
+      // } else if (item.name) {
+      //   // locale = `menu.${item.name}`;
+      //   locale = item.name
+      // } else if (parentName) {
+      //   locale = parentName;
+      // }
       if (item.path) {
         const result = {
           ...item,
-          locale,
+          // locale,
           authority: item.authority || parentAuthority,
         };
         if (item.routes) {
-          const children = formatter(item.routes, item.authority, locale);
+          // const children = formatter(item.routes, item.authority,locale);
+          const children = formatter(item.routes, item.authority);
           // Reduce memory usage
           result.children = children;
         }
@@ -125,7 +127,10 @@ class BasicLayout extends React.PureComponent {
   // };
   handleMenuClick = ({ item, key, keyPath }) => {
     const { panes } = this.state;
-    const name = formatMessage({ id: 'menu' + key.replace(/\//g, '.') })
+   
+    // const name = formatMessage({ id: 'menu' + key.replace(/\//g, '.') })
+    const name = 'haha'
+    console.log(key,name)
     // console.log(panes)
     var stooge = {name: 'moe', age: 32};
     let isExist = false
@@ -267,13 +272,14 @@ class BasicLayout extends React.PureComponent {
     const currRouterData = this.matchParamsPath(pathname);
 
     if (!currRouterData) {
-      return 'Ant Design Pro';
+      return '当家师';
     }
-    const message = formatMessage({
-      id: currRouterData.locale || currRouterData.name,
-      defaultMessage: currRouterData.name,
-    });
-    return `${message} - Ant Design Pro`;
+    // const message = formatMessage({
+    //   id: currRouterData.locale || currRouterData.name,
+    //   defaultMessage: currRouterData.name,
+    // });
+    const message = currRouterData.name
+    return `${message} - 当家师`;
   };
 
   getLayoutStyle = () => {

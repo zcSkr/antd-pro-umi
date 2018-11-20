@@ -25,12 +25,13 @@ import {
   Tag,
   Spin,
   Switch,
+  Upload,
 } from 'antd';
 import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { arrayMove } from 'react-sortable-hoc';
-import UploadImg from '@/components/UploadImg/UpLoadImg';
+import WangEditor from '@/components/WangEditor/WangEditor';
 import { isEqual, isEmpty } from 'underscore';
 
 import styles from './RoleManage.less';
@@ -54,14 +55,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        roleName: props.values.roleName,
-        description: props.values.description,
-        modules: '0',
-      },
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
+      formVals: {},
       selectedKeys: [],
     };
 
@@ -71,144 +65,132 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
+    const defaultFormValues = {
+      codeLevel: 'sys',
+      valueType: 'txt',
+    }
+    if(isEmpty(nextProps.values)) {
+      return { formVals : defaultFormValues }
+    } else if (!isEqual(prevState.formVals, nextProps.values)) {
+      return { formVals : {...prevState.formVals, ...nextProps.values} }
     }
     return null;
   }
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
+    // console.log(this.state.editor.txt.html())
     form.validateFields((err, fieldsValue) => {
       // console.log(err, fieldsValue)
       if (err) return;
       this.setState({ formVals: { ...fieldsValue } });
     });
+    console.log(formVals)
   }
-  onExpand = (expandedKeys) => {
-    console.log('onExpand', expandedKeys);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
-    });
+  handleSelectChange = (field,value,option) => {
+    let { formVals } = this.state
+    console.log(field,value);
+    formVals[field] = value
+    this.setState({formVals: formVals})
   }
-
-  onCheck = (checkedKeys) => {
-    console.log('onCheck', checkedKeys);
-    this.setState({ checkedKeys, selectedKeys: checkedKeys });
-  }
-
-  onSelect = (selectedKeys, info) => {
-    console.log('onSelect', selectedKeys);
-    this.setState({ selectedKeys, checkedKeys: selectedKeys });
-  }
-  renderTreeNodes = (data) => {
-    return data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode title={item.title} key={item.key} dataRef={item}>
-            {this.renderTreeNodes(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode {...item} />;
-    });
-  };
   renderContent = (formVals) => {
-    const treeData = [{
-      title: '0-0',
-      key: '0-0',
-      children: [{
-        title: '0-0-0',
-        key: '0-0-0',
-        children: [
-          { title: '0-0-0-0', key: '0-0-0-0' },
-          { title: '0-0-0-1', key: '0-0-0-1' },
-          { title: '0-0-0-2', key: '0-0-0-2' },
-        ],
-      }, {
-        title: '0-0-1',
-        key: '0-0-1',
-        children: [
-          { title: '0-0-1-0', key: '0-0-1-0' },
-          { title: '0-0-1-1', key: '0-0-1-1' },
-          { title: '0-0-1-2', key: '0-0-1-2' },
-        ],
-      }, {
-        title: '0-0-2',
-        key: '0-0-2',
-      }],
-    }, {
-      title: '0-1',
-      key: '0-1',
-      children: [
-        { title: '0-1-0-0', key: '0-1-0-0' },
-        { title: '0-1-0-1', key: '0-1-0-1' },
-        { title: '0-1-0-2', key: '0-1-0-2' },
-      ],
-    }, {
-      title: '0-2',
-      key: '0-2',
-    }];
-    const { form, moduleList, moduleLoading } = this.props;
-
-    moduleList.forEach(item => {
-      item.title = item.moduleName;
-      item.key = item.id;
-      item.children ? item.children.forEach(childItem => {
-        childItem.title = childItem.moduleName;
-        childItem.key = childItem.id;
-      }) : null
-    })
-    // console.log(moduleList,666)
+    const { form } = this.props;
+    // console.log(formVals)
+    const props = {
+      name: 'file',
+      action: '//jsonplaceholder.typicode.com/posts/',
+      headers: {
+        authorization: 'authorization-text',
+      },
+      onChange(info) {
+        if (info.file.status !== 'uploading') {
+          console.log(info.file, info.fileList);
+        }
+        if (info.file.status === 'done') {
+          message.success(`${info.file.name} file uploaded successfully`);
+        } else if (info.file.status === 'error') {
+          message.error(`${info.file.name} file upload failed.`);
+        }
+      }
+    }
     return (
-      <Row style={{ height: '100%' }}>
-        <Col span={16}>
-          <FormItem key="name" hasFeedback {...this.formLayout} label="角色名称">
-            {form.getFieldDecorator('roleName', {
-              rules: [{ required: true, message: '请输入角色名称！' }],
-              initialValue: formVals.roleName,
-            })(<Input placeholder="请输入角色名称" />)}
-          </FormItem>
-          <FormItem key="desc " hasFeedback {...this.formLayout} label="角色描述">
-            {form.getFieldDecorator('description', {
-              initialValue: formVals.description,
-            })(<TextArea rows={4} placeholder="请输入角色描述" />)}
-          </FormItem>
-        </Col>
-        <Col span={8}>
-          {
-            moduleLoading ? <Spin /> :
-            <FormItem key="modules" {...this.formLayout}>
-              {form.getFieldDecorator('modules', {
-                rules: [{ required: true, message: '请选择模块！' }]
-              })(<Tree
-                checkable
-                // onExpand={this.onExpand}
-                // expandedKeys={this.state.expandedKeys}
-                multiple={true}
-                defaultExpandAll={true}
-                autoExpandParent={this.state.autoExpandParent}
-                onCheck={this.onCheck}
-                checkedKeys={this.state.checkedKeys}
-                onSelect={this.onSelect}
-                selectedKeys={this.state.selectedKeys}
-              >
-                {this.renderTreeNodes(moduleList)}
-              </Tree>)}
-            </FormItem>
-          }
-        </Col>
-      </Row>
+      <Fragment>
+        <FormItem key="codeLevel" {...this.formLayout} label="参数级别">
+          {form.getFieldDecorator('codeLevel', {
+            initialValue: formVals.codeLevel || 'sys',
+          })(
+            <Select style={{ width: '100%' }} onChange={this.handleSelectChange.bind(this,'codeLevel')}>
+              <Option value="sys">系统级别</Option>
+              <Option value="bis">业务级别</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem key="type" {...this.formLayout} label="参数类型">
+          {form.getFieldDecorator('type', {
+            rules: [{ required: true, message: '请输入参数类型！' }],
+            initialValue: formVals.type,
+          })(<Input placeholder="请输入参数类型" />)}
+        </FormItem>
+        <FormItem key="codeKey" {...this.formLayout} label="键">
+          {form.getFieldDecorator('codeKey', {
+            rules: [{ required: true, message: '请输入键！' }],
+            initialValue: formVals.codeKey,
+          })(<Input placeholder="请输入键" />)}
+        </FormItem>
+        <FormItem key="valueType" {...this.formLayout} label="值类型">
+          {form.getFieldDecorator('valueType', {
+            initialValue: formVals.valueType || 'txt',
+          })(
+            <Select style={{ width: '100%' }} onChange={this.handleSelectChange.bind(this,'valueType')}>
+              <Option value="txt">文本</Option>
+              <Option value="imgContent">图文</Option>
+              <Option value="file">文件</Option>
+            </Select>
+          )}
+        </FormItem>
+        {
+          formVals.valueType == 'txt' ?
+          <FormItem key="codeValue" {...this.formLayout} label="值">
+            {form.getFieldDecorator('codeValue', {
+              rules: [{ required: true}],
+              initialValue: formVals.codeValue,
+            })(<Input placeholder="请输入值" />)}
+          </FormItem> : null
+        }
+        {
+          formVals.valueType == 'imgContent' ?
+          <FormItem key="codeValue" {...this.formLayout} label="值">
+            {form.getFieldDecorator('codeValue', {
+              rules: [{ required: true}],
+              initialValue: formVals.codeValue,
+            })(<WangEditor editor={(editor) => this.setState({editor})}></WangEditor>)}
+          </FormItem> : null
+        }
+        {
+          formVals.valueType == 'file' ?
+          <FormItem key="codeValue" {...this.formLayout} label="值">
+            {form.getFieldDecorator('codeValue', {
+              rules: [{ required: true}],
+              initialValue: formVals.codeValue,
+            })(
+              <Upload {...props}>
+                <Button><Icon type="upload" /> 选择文件</Button>
+              </Upload>
+            )}
+          </FormItem> : null
+        }
+        <FormItem key="description" {...this.formLayout} label="描述">
+          {form.getFieldDecorator('description', {
+            initialValue: formVals.description,
+          })(<TextArea rows={4} placeholder="请输入描述" />)}
+        </FormItem>
+      </Fragment>
     );
   };
-
   renderFooter = () => {
     const { handleUpdateModalVisible } = this.props;
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{textAlign: 'center'}}>
         {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
           取消
     </Button> */}
@@ -222,12 +204,13 @@ class UpdateForm extends PureComponent {
   render() {
     const { updateModalVisible, handleUpdateModalVisible } = this.props;
     const { formVals } = this.state;
+    console.log(formVals)
     return (
       <Modal
         width={640}
         destroyOnClose
         // bodyStyle={{ padding: '32px 40px 48px' }}
-        title={isEmpty(formVals) ? '添加角色' : '编辑角色'}
+        title={isEmpty(this.props.values) ? '添加参数' : '编辑参数'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
         onCancel={() => handleUpdateModalVisible()}
@@ -239,33 +222,17 @@ class UpdateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ role, module, loading }) => ({
-  role,
-  module,
-  loading: loading.effects['role/query'],
-  moduleLoading: loading.effects['module/service']
+@connect(({ params, loading }) => ({
+  params,
+  loading: loading.effects['params/query'],
 }))
 @Form.create()
-export default class RoleManage extends PureComponent {
+export default class SysParams extends PureComponent {
   state = {
     updateModalVisible: false,
     selectedRows: [],
     formValues: {},
     stepFormValues: {},
-    moduleList: [],
-
-    fileList: [{
-      uid: '0',
-      name: 'xxx.png',
-      status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    }, {
-      uid: '1',
-      name: 'xxx.png',
-      status: 'done',
-      url: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1542249636&di=e62f4d745dc358a5d678d56f52e53391&imgtype=jpg&er=1&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2F86d6277f9e2f0708fda62627e324b899a901f272.jpg',
-    }],
-    totalNum: 6
   };
 
   columns = [
@@ -273,25 +240,25 @@ export default class RoleManage extends PureComponent {
       title: '序号',
       key: 'index',
       width: "10%",
-      render: (val,record,index) => index + 1,
+      render: (val, record, index) => index + 1,
     },
     {
-      title: '角色名称',
-      dataIndex: 'roleName',
-      width: "15%",
+      title: '参数类型',
+      dataIndex: 'type',
+      width: "20%",
     },
     {
-      title: '拥有板块',
-      dataIndex: 'moduleNames',
-      width: '30%',
-      render: (text, record) => <Ellipsis length={80} fullWidthRecognition tooltip>{text}</Ellipsis>
+      title: '键',
+      dataIndex: 'codeKey',
+      width: '20%',
     },
-    {
-      title: '角色描述',
-      dataIndex: 'description',
-      width: "15%",
-      render: (text, record) => <Ellipsis length={80} fullWidthRecognition tooltip>{text}</Ellipsis>
-    },
+    // {
+    //   title: '值',
+    //   dataIndex: 'codeValue',
+    //   width: "15%",
+    //   // render: (text, record) => <Ellipsis length={80} fullWidthRecognition tooltip>{text}</Ellipsis>
+    //   render: (text, record) => <div dangerouslySetInnerHTML={{_html: '123'}}>66</div>
+    // },
     {
       title: '创建时间',
       dataIndex: 'createTime',
@@ -318,25 +285,13 @@ export default class RoleManage extends PureComponent {
   ];
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({ type: 'role/query' });
-    //获取模块数据
-    dispatch({
-      type: 'module/service',
-      payload: {
-        service: 'query',
-      },
-      onSuccess: res => {
-        if (res.resultState == '1') {
-          this.setState({ moduleList: res.data })
-        }
-      }
-    });
+    dispatch({ type: 'params/query' });
   }
   handleDeleteRecord(record) {
     console.log(record)
     const { dispatch } = this.props
     dispatch({
-      type: 'role/service',
+      type: 'params/service',
       payload: {
         service: 'remove',
         data: { id: record.id }
@@ -344,7 +299,7 @@ export default class RoleManage extends PureComponent {
       onSuccess: res => {
         console.log(res)
         if (res.resultState == '1') {
-          dispatch({ type: 'role/query' })
+          dispatch({ type: 'params/query' })
           message.success(res.msg);
         } else {
           message.error(res.msg);
@@ -364,8 +319,8 @@ export default class RoleManage extends PureComponent {
       return newObj;
     }, {});
     const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
+      draw: pagination.current,
+      length: pagination.pageSize,
       ...formValues,
       ...filters,
     };
@@ -373,8 +328,12 @@ export default class RoleManage extends PureComponent {
       params.sorter = `${sorter.field}_${sorter.order}`;
     }
 
-    dispatch({
-      type: 'rule/fetch',
+    // dispatch({
+    //   type: 'rule/fetch',
+    //   payload: params,
+    // });
+    dispatch({ 
+      type: 'params/query',
       payload: params,
     });
   };
@@ -386,7 +345,7 @@ export default class RoleManage extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'role/query',
+      type: 'params/query',
       payload: {
         draw: 1,
         limit: 1,
@@ -441,7 +400,7 @@ export default class RoleManage extends PureComponent {
         formValues: values,
       });
       dispatch({
-        type: 'role/query',
+        type: 'params/query',
         payload: {
           roleName: values.roleName,
           moduleNames: values.bkName,
@@ -496,13 +455,13 @@ export default class RoleManage extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="角色名称">
-              {getFieldDecorator('roleName')(<Input placeholder="请输入角色名称" />)}
+            <FormItem label="参数类型">
+              {getFieldDecorator('roleName')(<Input placeholder="请输入参数类型" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="板块名称">
-              {getFieldDecorator('bkName')(<Input placeholder="请输入板块名称" />)}
+            <FormItem label="键">
+              {getFieldDecorator('bkName')(<Input placeholder="请输入键" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -525,7 +484,7 @@ export default class RoleManage extends PureComponent {
   }
   beforeUpload = (file, fileList) => {
     // console.log(fileList, 'before')
-    if(fileList.length + this.state.fileList.length > this.state.totalNum){
+    if (fileList.length + this.state.fileList.length > this.state.totalNum) {
       message.warning('图片不能超过6张')
       return false
     }
@@ -537,11 +496,10 @@ export default class RoleManage extends PureComponent {
 
   render() {
     const {
-      role: { data: { list, pagination } },
+      params: { data: { list, pagination } },
       loading,
-      moduleLoading
     } = this.props;
-    const { selectedRows, updateModalVisible, stepFormValues, moduleList, fileList, totalNum } = this.state;
+    const { selectedRows, updateModalVisible, stepFormValues } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -552,21 +510,20 @@ export default class RoleManage extends PureComponent {
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
       handleUpdate: this.handleUpdate,
-      moduleLoading
     };
     const MyIcon = Icon.createFromIconfontCN({
       scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
     });
 
     return (
-      <PageHeaderWrapper title="角色管理">
+      <PageHeaderWrapper title="系统参数">
         {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
-                添加角色
+                添加参数
               </Button>
               {selectedRows.length > 0 && (
                 <span>
@@ -579,16 +536,6 @@ export default class RoleManage extends PureComponent {
                 </span>
               )}
             </div>
-            {/* <UploadImg
-              action="//jsonplaceholder.typicode.com/posts/"
-              totalNum={totalNum}
-              multiple={true}
-              supportSort={true}
-              fileList={fileList}
-              beforeUpload={this.beforeUpload}
-              onChange={this.handleUpLoadChange}
-              onSortEnd={this.onSortEnd}
-            /> */}
             <StandardTable
               isCheckBox={false}
               selectedRows={selectedRows}
@@ -605,7 +552,6 @@ export default class RoleManage extends PureComponent {
           {...updateMethods}
           updateModalVisible={updateModalVisible}
           values={stepFormValues}
-          moduleList={moduleList}
         />
       </PageHeaderWrapper>
     );

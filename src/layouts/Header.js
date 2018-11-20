@@ -8,12 +8,14 @@ import GlobalHeader from '@/components/GlobalHeader';
 import TopNavHeader from '@/components/TopNavHeader';
 import styles from './Header.less';
 import Authorized from '@/utils/Authorized';
-
+import UpdatePsd from '@/components/UpdatePsd/UpdatePsd';
+import app from '@/config/app';
 const { Header } = Layout;
 
 class HeaderView extends PureComponent {
   state = {
     visible: true,
+    psdModalVisible: false,
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -53,16 +55,8 @@ class HeaderView extends PureComponent {
 
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
-    if (key === 'userCenter') {
-      router.push('/account/center');
-      return;
-    }
-    if (key === 'triggerError') {
-      router.push('/exception/trigger');
-      return;
-    }
-    if (key === 'userinfo') {
-      router.push('/account/settings/base');
+    if (key === 'updatePsd') {
+      this.setState({psdModalVisible: true})
       return;
     }
     if (key === 'logout') {
@@ -72,14 +66,11 @@ class HeaderView extends PureComponent {
     }
   };
 
-  handleNoticeVisibleChange = visible => {
-    if (visible) {
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'global/fetchNotices',
-      });
-    }
-  };
+  handlePsdModal = (flag, record) => {
+    this.setState({
+      psdModalVisible: !!flag,
+    });
+  }
 
   handScroll = () => {
     const { autoHideHeader } = this.props;
@@ -128,34 +119,33 @@ class HeaderView extends PureComponent {
             mode="horizontal"
             Authorized={Authorized}
             onCollapse={handleMenuCollapse}
-            onNoticeClear={this.handleNoticeClear}
             onMenuClick={this.handleMenuClick}
-            onNoticeVisibleChange={this.handleNoticeVisibleChange}
             {...this.props}
           />
         ) : (
           <GlobalHeader
             onCollapse={handleMenuCollapse}
-            onNoticeClear={this.handleNoticeClear}
             onMenuClick={this.handleMenuClick}
-            onNoticeVisibleChange={this.handleNoticeVisibleChange}
             {...this.props}
           />
         )}
       </Header>
     ) : null;
-    return (
-      <Animate component="" transitionName="fade">
+    return [
+      <Animate key="Animate" component="" transitionName="fade">
         {HeaderDom}
-      </Animate>
-    );
+      </Animate>,
+      <UpdatePsd
+          key="UpdatePsd"
+          handlePsdModal={this.handlePsdModal}
+          psdModalVisible={this.state.psdModalVisible}
+      />
+    ];
   }
 }
 
 export default connect(({ user, global, setting, loading }) => ({
-  currentUser: user.currentUser,
+  currentUser: app.getUnionuser(),
   collapsed: global.collapsed,
-  fetchingNotices: loading.effects['global/fetchNotices'],
-  notices: global.notices,
   setting,
 }))(HeaderView);

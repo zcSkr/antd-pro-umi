@@ -63,7 +63,7 @@ class UpdateForm extends PureComponent {
   }
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!isEqual(prevState.formVals, nextProps.values)) {
-      prevState.formVals = nextProps.values
+      return { formVals: { ...prevState.formVals,...nextProps.values } }
     }
     return null;
   }
@@ -157,14 +157,16 @@ class UpdateForm extends PureComponent {
 
   renderFooter = () => {
     const { handleUpdateModalVisible } = this.props;
-    return [
-      <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-        取消
-      </Button>,
-      <Button key="forward" type="primary" onClick={this.handleConfirm}>
-        确定
-      </Button>,
-    ];
+    return (
+      <div style={{ textAlign: 'center' }}>
+        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
+          取消
+    </Button> */}
+        <Button key="forward" type="primary" onClick={this.handleConfirm}>
+          提交
+        </Button>
+      </div>
+    );
   };
 
   render() {
@@ -220,21 +222,20 @@ export default class ModuleManage extends PureComponent {
       title: '创建时间',
       dataIndex: 'createTime',
       width: "20%",
-      sorter: true,
       render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '操作',
       width: 200,
       render: (text, record) => (
-        <Fragment>
-          <Tag color="#108ee9" onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
+        <div style={{ minWidth: 115 }}>
+          <Tag color="#108ee9" style={{margin: 0}} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
           <Divider type="vertical" />
           <Popconfirm title="确定删除?" onConfirm={() => this.handleDeleteRecord(record)} okText="确定" cancelText="取消">
-            <Tag color="#f50">删除</Tag>
+            <Tag color="#f50" style={{margin: 0}}>删除</Tag>
           </Popconfirm>
 
-        </Fragment>
+        </div>
       ),
     },
   ];

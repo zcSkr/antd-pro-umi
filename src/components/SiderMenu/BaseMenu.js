@@ -81,8 +81,8 @@ export default class BaseMenu extends PureComponent {
   getSubMenuOrItem = item => {
     // doc: add hideChildrenInMenu
     if (item.children && !item.hideChildrenInMenu && item.children.some(child => child.name)) {
-      const name = item.locale ? formatMessage({ id: item.locale }) : item.name;
-      // const name = item.name
+      // const name = item.locale ? formatMessage({ id: item.locale }) : item.name;
+      const name = item.name
       return (
         <SubMenu
           title={
@@ -110,8 +110,8 @@ export default class BaseMenu extends PureComponent {
    * @memberof SiderMenu
    */
   getMenuItemPath = item => {
-    const name = item.locale ? formatMessage({ id: item.locale }) : item.name;
-    // const name = item.name
+    // const name = item.locale ? formatMessage({ id: item.locale }) : item.name;
+    const name = item.name
     const itemPath = this.conversionPath(item.path);
     const icon = getIcon(item.icon);
     const { target } = item;

@@ -5,7 +5,8 @@ import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
 import * as service_login from '@/services/sys/login';
-import app from '@/config/config';
+import app from '@/config/app';
+import { notification } from 'antd';
 
 export default {
   namespace: 'login',
@@ -16,49 +17,65 @@ export default {
   },
 
   effects: {
-    *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
-      yield put({
-        type: 'changeLoginStatus',
-        payload: response,
-      });
-      // Login successfully
-      if (response.status === 'ok') {
-        reloadAuthorized();
-        const urlParams = new URL(window.location.href);
-        const params = getPageQuery();
-        let { redirect } = params;
-        console.log(urlParams,params)
-        if (redirect) {
-          const redirectUrlParams = new URL(redirect);
-          if (redirectUrlParams.origin === urlParams.origin) {
-            redirect = redirect.substr(urlParams.origin.length);
-            if (redirect.startsWith('/#')) {
-              redirect = redirect.substr(2);
-            }
-          } else {
-            window.location.href = redirect;
-            return;
-          }
-        }
-        yield put(routerRedux.replace(redirect || '/'));
-      }
-    },
-    *login1({ payload }, { select, call, put }) {
+    // *login({ payload }, { call, put }) {
+    //   const response = yield call(fakeAccountLogin, payload);
+    //   yield put({
+    //     type: 'changeLoginStatus',
+    //     payload: response,
+    //   });
+    //   // Login successfully
+    //   if (response.status === 'ok') {
+    //     reloadAuthorized();
+    //     const urlParams = new URL(window.location.href);
+    //     const params = getPageQuery();
+    //     let { redirect } = params;
+    //     console.log(urlParams, params)
+    //     if (redirect) {
+    //       const redirectUrlParams = new URL(redirect);
+    //       if (redirectUrlParams.origin === urlParams.origin) {
+    //         redirect = redirect.substr(urlParams.origin.length);
+    //         if (redirect.startsWith('/#')) {
+    //           redirect = redirect.substr(2);
+    //         }
+    //       } else {
+    //         window.location.href = redirect;
+    //         return;
+    //       }
+    //     }
+    //     yield put(routerRedux.replace(redirect || '/'));
+    //   }
+    // },
+    *login({ payload }, { select, call, put }) {
       yield put({ type: 'save', payload: { logining: true } });
-      const response = yield call(service_login.login, { account: 'dev', password: 'dev' });
+      const response = yield call(service_login.login, { account: 'dev', password: 'dev', ...payload });
       if (response) {
-        console.log(response)
-        // const urlParams = new URL(window.location.href);
-        // const params = getPageQuery();
-        // let { redirect } = params;
-        // console.log(urlParams,params)
-        app.setToken(response.data.token);
-        app.setUnionuser(response.data.user);
-        yield put({ type: 'save', payload: { logining: false } });
-        yield put(routerRedux.push('/'));
+        if (response.resultState == '1') {
+          app.setToken(response.data.token);
+          app.setUnionuser(response.data.user);
+          yield put({ type: 'save', payload: { logining: false, status: 'success' } });
+          const urlParams = new URL(window.location.href);
+          const params = getPageQuery();
+          let { redirect } = params;
+          console.log(urlParams, params)
+          if (redirect) {
+            const redirectUrlParams = new URL(redirect);
+            if (redirectUrlParams.origin === urlParams.origin) {
+              redirect = redirect.substr(urlParams.origin.length);
+              if (redirect.startsWith('/#')) {
+                redirect = redirect.substr(2);
+              }
+            } else {
+              window.location.href = redirect;
+              return;
+            }
+          }
+          yield put(routerRedux.replace(redirect || '/'));
+        } else {
+          yield put({ type: 'save', payload: { status: 'error' } });
+        }
+        notification.destroy()
       } else {
-        yield put({ type: 'save', payload: { logining: false } });
+        yield put({ type: 'save', payload: { logining: false, status: 'error' } });
       }
     },
 
@@ -67,14 +84,8 @@ export default {
     },
 
     *logout(_, { put }) {
-      yield put({
-        type: 'changeLoginStatus',
-        payload: {
-          status: false,
-          currentAuthority: 'guest',
-        },
-      });
-      reloadAuthorized();
+      localStorage.removeItem('unionuser')
+      localStorage.removeItem('token')
       yield put(
         routerRedux.push({
           pathname: '/user/login',

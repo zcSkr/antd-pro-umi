@@ -6,7 +6,7 @@ import styles from './uploadImg.less';
 export default class UploadImg extends PureComponent {
   constructor(props) {
     super(props)
-    console.log(props)
+    // console.log(props)
     this.state = {
       previewVisible: false,
       previewImage: '',

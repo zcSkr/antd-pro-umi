@@ -6,8 +6,6 @@ export default [
     routes: [
       { path: '/user', redirect: '/user/login' },
       { path: '/user/login', component: './User/Login' },
-      { path: '/user/register', component: './User/Register' },
-      { path: '/user/register-result', component: './User/RegisterResult' },
     ],
   },
   // app
@@ -17,271 +15,117 @@ export default [
     Routes: ['src/pages/Authorized'],
     authority: ['admin', 'user'],
     routes: [
-      // dashboard
       { path: '/', redirect: '/sys/role' },
-      // {
-      //   path: '/dashboard',
-      //   name: 'dashboard',
-      //   icon: 'dashboard',
-      //   routes: [
-      //     {
-      //       path: '/dashboard/analysis',
-      //       name: 'analysis',
-      //       component: './Dashboard/Analysis',
-      //     },
-      //     {
-      //       path: '/dashboard/monitor',
-      //       name: 'monitor',
-      //       component: './Dashboard/Monitor',
-      //     },
-      //     {
-      //       path: '/dashboard/workplace',
-      //       name: 'workplace',
-      //       component: './Dashboard/Workplace',
-      //     },
-      //   ],
-      // },
-      // // forms
-      // {
-      //   path: '/form',
-      //   icon: 'form',
-      //   name: 'form',
-      //   routes: [
-      //     {
-      //       path: '/form/basic-form',
-      //       name: 'basicform',
-      //       component: './Forms/BasicForm',
-      //     },
-      //     {
-      //       path: '/form/step-form',
-      //       name: 'stepform',
-      //       component: './Forms/StepForm',
-      //       hideChildrenInMenu: true,
-      //       routes: [
-      //         {
-      //           path: '/form/step-form',
-      //           name: 'stepform',
-      //           redirect: '/form/step-form/info',
-      //         },
-      //         {
-      //           path: '/form/step-form/info',
-      //           name: 'info',
-      //           component: './Forms/StepForm/Step1',
-      //         },
-      //         {
-      //           path: '/form/step-form/confirm',
-      //           name: 'confirm',
-      //           component: './Forms/StepForm/Step2',
-      //         },
-      //         {
-      //           path: '/form/step-form/result',
-      //           name: 'result',
-      //           component: './Forms/StepForm/Step3',
-      //         },
-      //       ],
-      //     },
-      //     {
-      //       path: '/form/advanced-form',
-      //       name: 'advancedform',
-      //       authority: ['admin'],
-      //       component: './Forms/AdvancedForm',
-      //     },
-      //   ],
-      // },
-      // list
       {
         path: '/sys',
         icon: 'setting',
-        name: 'sys',
+        name: '系统设置',
         routes: [
           {
             path: '/sys/role',
-            name: 'role',
+            name: '角色管理',
             component: './Sys/RoleManage',
           },
           {
             path: '/sys/module',
-            name: 'module',
+            name: '模块管理',
             component: './Sys/ModuleManage',
-          },{
+          },
+          {
             path: '/sys/params',
-            name: 'params',
-            component: './List/TableList',
-          },{
+            name: '系统参数',
+            component: './Sys/SysParams',
+          },
+          {
             path: '/sys/administrator',
-            name: 'administrator',
-            component: './List/TableList',
+            name: '子管理员',
+            component: './Sys/ChildManage',
+          },
+          {
+            path: '/sys/datadic',
+            name: '数据字典',
+            component: './Sys/DataDic',
           }
         ]
       },
       {
-        id: '1',
-        path: '/list',
+        path: '/sysUser',
+        icon: 'setting',
+        name: '系统用户',
+        routes: [
+          {
+            path: '/sysUser/factory',
+            name: '厂家管理',
+            component: './sysUser/FactoryManage',
+          },
+          {
+            path: '/sysUser/merchant',
+            name: '商家管理',
+            component: './sysUser/MerchantManage',
+          },
+          {
+            path: '/sysUser/user',
+            name: '用户管理',
+            component: './sysUser/UserManage',
+          },
+        ]
+      },
+      {
+        path: '/service',
         icon: 'table',
-        name: 'list',
+        name: '业务管理',
         routes: [
           {
-            id: '2',
-            path: '/list/table-list',
-            name: 'searchtable',
-            component: './List/TableList',
+            path: '/service/feedback',
+            name: '系统反馈',
+            component: './Service/FeedBack',
           },
           {
-            path: '/list/basic-list',
-            name: 'basiclist',
-            component: './List/BasicList',
+            path: '/service/devicedppeal',
+            name: '设备申诉',
+            component: './Service/DeviceDppeal',
           },
           {
-            path: '/list/card-list',
-            name: 'cardlist',
-            component: './List/CardList',
+            path: '/service/virtualdevice',
+            name: '虚拟设备',
+            component: './Service/VirtualDevice',
           },
-          {
-            path: '/list/search',
-            name: 'searchlist',
-            component: './List/List',
-            routes: [
-              {
-                path: '/list/search',
-                redirect: '/list/search/articles',
-              },
-              {
-                path: '/list/search/articles',
-                name: 'articles',
-                component: './List/Articles',
-              },
-              {
-                path: '/list/search/projects',
-                name: 'projects',
-                component: './List/Projects',
-              },
-              {
-                path: '/list/search/applications',
-                name: 'applications',
-                component: './List/Applications',
-              },
-            ],
-          },
-        ],
+        ]
       },
       {
-        path: '/profile',
-        name: 'profile',
-        icon: 'profile',
-        routes: [
-          // profile
-          {
-            path: '/profile/basic',
-            name: 'basic',
-            component: './Profile/BasicProfile',
-          },
-          {
-            path: '/profile/advanced',
-            name: 'advanced',
-            // authority: ['admin'],
-            component: './Profile/AdvancedProfile',
-          },
-        ],
+        path: '/device',
+        icon: 'table',
+        name: '设备管理',
+        component: './Device/DeviceManage',
       },
       {
-        name: 'result',
-        icon: 'check-circle-o',
-        path: '/result',
+        path: '/factory',
+        icon: 'table',
+        name: '厂家权限',
         routes: [
-          // result
           {
-            path: '/result/success',
-            name: 'success',
-            component: './Result/Success',
+            path: '/factory/merchantManage',
+            name: '商家管理',
+            component: './Factory/MerchantManage',
           },
-          { path: '/result/fail', name: 'fail', component: './Result/Error' },
-        ],
+          {
+            path: '/factory/deviceManage',
+            name: '设备管理',
+            component: './Factory/DeviceManage',
+          },
+        ]
       },
       {
-        name: 'exception',
-        icon: 'warning',
-        path: '/exception',
-        routes: [
-          // exception
-          {
-            path: '/exception/403',
-            name: 'not-permission',
-            component: './Exception/403',
-          },
-          {
-            path: '/exception/404',
-            name: 'not-find',
-            component: './Exception/404',
-          },
-          {
-            path: '/exception/500',
-            name: 'server-error',
-            component: './Exception/500',
-          },
-          {
-            path: '/exception/trigger',
-            name: 'trigger',
-            hideInMenu: true,
-            component: './Exception/TriggerException',
-          },
-        ],
-      },
-      {
-        name: 'account',
-        icon: 'user',
-        path: '/account',
+        path: '/merchant',
+        icon: 'table',
+        name: '商家权限',
         routes: [
           {
-            path: '/account/center',
-            name: 'center',
-            component: './Account/Center/Center',
-            routes: [
-              {
-                path: '/account/center',
-                redirect: '/account/center/articles',
-              },
-              {
-                path: '/account/center/articles',
-                component: './Account/Center/Articles',
-              },
-              {
-                path: '/account/center/applications',
-                component: './Account/Center/Applications',
-              },
-              {
-                path: '/account/center/projects',
-                component: './Account/Center/Projects',
-              },
-            ],
+            path: '/merchant/deviceManage',
+            name: '设备管理',
+            component: './Merchant/DeviceManage',
           },
-          {
-            path: '/account/settings',
-            name: 'settings',
-            component: './Account/Settings/Info',
-            routes: [
-              {
-                path: '/account/settings',
-                redirect: '/account/settings/base',
-              },
-              {
-                path: '/account/settings/base',
-                component: './Account/Settings/BaseView',
-              },
-              {
-                path: '/account/settings/security',
-                component: './Account/Settings/SecurityView',
-              },
-              {
-                path: '/account/settings/binding',
-                component: './Account/Settings/BindingView',
-              },
-              {
-                path: '/account/settings/notification',
-                component: './Account/Settings/NotificationView',
-              },
-            ],
-          },
-        ],
+        ]
       },
       {
         component: '404',

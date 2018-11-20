@@ -69,6 +69,7 @@ class StandardTable extends PureComponent {
       loading,
       columns,
       rowKey,
+      isCheckBox
     } = this.props;
     const paginationProps = {
       pageSizeOptions: ['10','20','50','100'],
@@ -90,6 +91,8 @@ class StandardTable extends PureComponent {
     return (
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
+        {
+          isCheckBox ? 
           <Alert
             message={
               <Fragment>
@@ -110,14 +113,16 @@ class StandardTable extends PureComponent {
             }
             type="info"
             showIcon
-          />
-          </div>
+          /> : null
+        }
+        </div>
         <Table
           // bordered
           size='small'
+          // scroll={{x: 1300}}
           loading={loading}
           rowKey={record => record.id}
-          rowSelection={rowSelection}
+          rowSelection={isCheckBox ? rowSelection : null}
           dataSource={list}
           columns={columns}
           pagination={paginationProps}
