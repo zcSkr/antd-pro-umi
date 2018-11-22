@@ -127,6 +127,9 @@ export default function request(
     }
   }
 
+  if (url.substr(0, 4) != 'http')
+    url = app.rootUrl + url;
+    
   console.log(url, newOptions.body)
   if (newOptions.body) {
     let formData = new FormData();
@@ -139,9 +142,11 @@ export default function request(
     }
   }
 
+  
+
   return fetch(url, newOptions)
     .then(checkStatus)
-    .then(response => cachedSave(response, hashcode))
+    // .then(response => cachedSave(response, hashcode))
     .then(response => {
       // DELETE and 204 do not return data by default
       // using .json will report an error.

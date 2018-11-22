@@ -1,13 +1,12 @@
 import React from 'react';
 import Link from 'umi/link';
-import { formatMessage } from "umi/locale";
 import Exception from '@/components/Exception';
-
+console.log(Link,666)
 export default () => (
   <Exception
     type="404"
+    desc='抱歉，你访问的页面不存在'
     linkElement={Link}
-    desc={formatMessage({id: 'app.exception.description.404'})}
-    backText={formatMessage({id: 'app.exception.back'})}
+    backText='回到首页'
   />
 );

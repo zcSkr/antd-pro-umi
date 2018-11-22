@@ -10,13 +10,9 @@ import {
   Select,
   Icon,
   Button,
-  Dropdown,
-  Menu,
   InputNumber,
-  DatePicker,
   Modal,
   message,
-  Badge,
   Divider,
   Steps,
   Radio,
@@ -29,14 +25,12 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from './RoleManage.less';
+import styles from '../Table.less';
 
-const FormItem = Form.Item;
-const { Step } = Steps;
+const FormItem = Form.Item;;
 const { TextArea } = Input;
 const { Option } = Select;
-const RadioGroup = Radio.Group;
-const TreeNode = Tree.TreeNode;
+
 const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
@@ -50,10 +44,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        moduleName: props.values.moduleName,
-        description: props.values.description,
-      },
+      formVals: {},
     };
 
     this.formLayout = {
@@ -62,10 +53,7 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
   handleConfirm = () => {
     const { form } = this.props;
@@ -76,43 +64,7 @@ class UpdateForm extends PureComponent {
       this.setState({ formVals: { ...fieldsValue } });
     });
   }
-  onExpand = (expandedKeys) => {
-    console.log('onExpand', expandedKeys);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
-    });
-  }
 
-  onCheck = (checkedKeys) => {
-    console.log('onCheck', checkedKeys);
-    this.setState({ checkedKeys });
-  }
-
-  onSelect = (selectedKeys, info) => {
-    console.log('onSelect', info);
-    this.setState({ selectedKeys });
-  }
-  renderTreeNodes = (data) => {
-    return data.map((item) => {
-      if (item.children) {
-        return (
-          <TreeNode title={item.title} key={item.key} dataRef={item}>
-            {this.renderTreeNodes(item.children)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode {...item} />;
-    });
-  }
-  handleSelectChange = (value) => {
-    console.log(`selected ${value}`);
-    this.props.form.setFieldsValue({
-      // pid: `Hi, ${value === 'male' ? 'man' : 'lady'}!`,
-    })
-  }
   renderContent = (formVals) => {
     const { form, list } = this.props;
     console.log(formVals)
@@ -122,7 +74,7 @@ class UpdateForm extends PureComponent {
           rules: [{ required: true, message: '请选择父级模块！' }],
           initialValue: formVals.pid,
         })(
-          <Select style={{ width: '100%' }} onChange={this.handleSelectChange}>
+          <Select style={{ width: '100%' }} showSearch filterOption={(input, option) => option.props.children.indexOf(input) != -1}>
             <Option value='0'>顶级模块</Option>
             {
               list.map(item => <Option key={item.id} value={item.id}>{item.moduleName}</Option>)
@@ -130,7 +82,7 @@ class UpdateForm extends PureComponent {
           </Select>
         )}
       </FormItem>,
-      <FormItem key="name" {...this.formLayout} label="模块名称">
+      <FormItem key="name" hasFeedback {...this.formLayout} label="模块名称">
         {form.getFieldDecorator('moduleName', {
           rules: [{ required: true, message: '请输入模块名称！' }],
           initialValue: formVals.moduleName,
@@ -141,7 +93,7 @@ class UpdateForm extends PureComponent {
           initialValue: formVals.requestUrl,
         })(<Input placeholder="请输入请求路径" />)}
       </FormItem>,
-      <FormItem key="number" {...this.formLayout} label="序号">
+      <FormItem key="number" hasFeedback {...this.formLayout} label="序号">
         {form.getFieldDecorator('number', {
           rules: [{ required: true, message: '序号不能为空！' }],
           initialValue: formVals.number,
@@ -156,12 +108,8 @@ class UpdateForm extends PureComponent {
   };
 
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
       <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -170,7 +118,7 @@ class UpdateForm extends PureComponent {
   };
 
   render() {
-    const { updateModalVisible, handleUpdateModalVisible, values } = this.props;
+    const { updateModalVisible, handleUpdateModalVisible } = this.props;
     const { formVals } = this.state;
     return (
       <Modal
@@ -180,7 +128,7 @@ class UpdateForm extends PureComponent {
         title={isEmpty(formVals) ? '添加模块' : '编辑模块'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -226,13 +174,12 @@ export default class ModuleManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
-        <div style={{ minWidth: 115 }}>
-          <Tag color="#108ee9" style={{margin: 0}} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
+        <div style={{ minWidth: 100 }}>
+          <Tag color="#108ee9" style={{ margin: 0 }} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
           <Divider type="vertical" />
           <Popconfirm title="确定删除?" onConfirm={() => this.handleDeleteRecord(record)} okText="确定" cancelText="取消">
-            <Tag color="#f50" style={{margin: 0}}>删除</Tag>
+            <Tag color="#f50" style={{ margin: 0 }}>删除</Tag>
           </Popconfirm>
 
         </div>
@@ -432,14 +379,7 @@ export default class ModuleManage extends PureComponent {
       module: { data: { list, pagination } },
       loading,
     } = this.props;
-    const { selectedRows, updateModalVisible, stepFormValues } = this.state;
-    console.log(list)
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
+    const { updateModalVisible, stepFormValues } = this.state;
 
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
@@ -454,35 +394,17 @@ export default class ModuleManage extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
                 添加模块
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
             </div>
             <StandardTable
-              selectedRows={selectedRows}
+              isCheckBox={false}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>
         </Card>
-        {/* stepFormValues && Object.keys(stepFormValues).length ? (
-          <UpdateForm
-            {...updateMethods}
-            updateModalVisible={updateModalVisible}
-            values={stepFormValues}
-          />
-        ) : null */}
         <UpdateForm
           {...updateMethods}
           updateModalVisible={updateModalVisible}

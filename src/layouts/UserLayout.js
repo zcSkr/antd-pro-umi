@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
-// import { formatMessage } from 'umi/locale';
 import Link from 'umi/link';
 import { Icon } from 'antd';
-
+import DocumentTitle from 'react-document-title';
 import styles from './UserLayout.less';
 import logo from '../assets/logo.svg';
 
@@ -23,19 +22,22 @@ class UserLayout extends React.PureComponent {
     const { children } = this.props;
     return (
       // @TODO <DocumentTitle title={this.getPageTitle()}>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.top}>
-            <div className={styles.header}>
-              <Link to="/">
-                <img alt="logo" className={styles.logo} src={logo} />
-                <span className={styles.title}>当家师后台管理系统</span>
-              </Link>
+      <DocumentTitle title="当家师">
+        <div className={styles.container}>
+          <div className={styles.content}>
+            <div className={styles.top}>
+              <div className={styles.header}>
+                <Link to="/">
+                  <img alt="logo" className={styles.logo} src={logo} />
+                  <span className={styles.title}>当家师后台管理系统</span>
+                </Link>
+              </div>
+              <div className={styles.desc}></div>
             </div>
+            {children}
           </div>
-          {children}
         </div>
-      </div>
+      </DocumentTitle>
     );
   }
 }

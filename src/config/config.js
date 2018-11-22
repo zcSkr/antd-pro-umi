@@ -1,6 +1,6 @@
 export default {
   baseRoute: '', //平台基础路由
-  rootUrl: 'https://www.easy-mock.com/mock/5a93c40c8be1e80aa1c929f7/mobileapi/daqu', //http://localhost:8040    https://ceshi.conpanda.cn
+  rootUrl: 'http://182.140.221.130:8080', //http://localhost:8040    https://ceshi.conpanda.cn
   logo: 'http://via.placeholder.com/256x256',
   version: '1.0.0', //版本
   description: '', //说明

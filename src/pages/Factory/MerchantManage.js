@@ -32,7 +32,7 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -54,11 +54,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-        modules: '0',
-      },
+      formVals: {},
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
@@ -71,11 +67,9 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
+
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
@@ -115,17 +109,6 @@ class UpdateForm extends PureComponent {
           </Select>
         )}
       </FormItem>,
-      <FormItem key="state1" {...this.formLayout} label="所属厂家">
-        {form.getFieldDecorator('state', {
-          rules: [{ required: true, message: '请选择所属厂家！' }],
-          initialValue: 1,
-        })(
-          <Select style={{ width: '100%' }}>
-            <Option value={1}>厂家一</Option>
-            <Option value={0}>厂家二</Option>
-          </Select>
-        )}
-      </FormItem>,
       <FormItem key="role" {...this.formLayout} label="角色">
         {form.getFieldDecorator('roleIds', {
           rules: [{ required: true, message: '请选择角色！' }],
@@ -136,12 +119,8 @@ class UpdateForm extends PureComponent {
   };
 
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
       <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -158,10 +137,10 @@ class UpdateForm extends PureComponent {
         width={640}
         destroyOnClose
         // bodyStyle={{ padding: '32px 40px 48px' }}
-        title={isEmpty(this.props.formVals) ? '添加商家' : '编辑商家'}
+        title={isEmpty(this.props.values) ? '添加商家' : '编辑商家'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -221,7 +200,6 @@ export default class MerchantManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
         <div style={{ minWidth: 100 }}>
           <Tag color="#108ee9" style={{ margin: 0 }} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
@@ -365,11 +343,6 @@ export default class MerchantManage extends PureComponent {
     }
   };
 
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows,
-    });
-  };
 
   handleSearch = e => {
     e.preventDefault();
@@ -473,24 +446,14 @@ export default class MerchantManage extends PureComponent {
       loading,
     } = this.props;
     const { selectedRows, updateModalVisible, stepFormValues, roleList } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
 
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
       handleUpdate: this.handleUpdate,
     };
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
 
     return (
       <PageHeaderWrapper title="商家管理">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -498,25 +461,13 @@ export default class MerchantManage extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
                 添加商家
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
             </div>
             <StandardTable
-              isCheckBox={false}
               selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>

@@ -8,9 +8,8 @@ import { ContainerQuery } from 'react-container-query';
 import classNames from 'classnames';
 import pathToRegexp from 'path-to-regexp';
 import { enquireScreen, unenquireScreen } from 'enquire-js';
-import { formatMessage } from 'umi/locale';
 import SiderMenu from '@/components/SiderMenu';
-import Authorized from '@/utils/Authorized';
+// import Authorized from '@/utils/Authorized';
 import logo from '../assets/logo.svg';
 // import Footer from './Footer';
 import Header from './Header';
@@ -21,36 +20,20 @@ import underscore from 'underscore';
 const { Content } = Layout;
 const { TabPane } = Tabs;
 // Conversion router to menu.
-function formatter(data, parentAuthority, parentName) {
-  // console.log(data, parentAuthority, parentName)
+function formatter(data) {
   return data
     .map(item => {
-      // let locale = 'menu';
-      // if (parentName && item.name) {
-      //   locale = `${parentName}.${item.name}`;
-      // } else if (item.name) {
-      //   // locale = `menu.${item.name}`;
-      //   locale = item.name
-      // } else if (parentName) {
-      //   locale = parentName;
-      // }
       if (item.path) {
-        const result = {
-          ...item,
-          // locale,
-          authority: item.authority || parentAuthority,
-        };
+        const result = { ...item };
         if (item.routes) {
-          // const children = formatter(item.routes, item.authority,locale);
-          const children = formatter(item.routes, item.authority);
+          const children = formatter(item.routes);
           // Reduce memory usage
           result.children = children;
         }
         // console.log(result)
-        // delete result.routes;
+        delete result.routes;
         return result;
       }
-
       return null;
     })
     .filter(item => item);
@@ -130,7 +113,7 @@ class BasicLayout extends React.PureComponent {
    
     // const name = formatMessage({ id: 'menu' + key.replace(/\//g, '.') })
     const name = 'haha'
-    console.log(key,name)
+    // console.log(key,name)
     // console.log(panes)
     var stooge = {name: 'moe', age: 32};
     let isExist = false
@@ -189,9 +172,6 @@ class BasicLayout extends React.PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'user/fetchCurrent',
-    });
-    dispatch({
       type: 'setting/getSetting',
     });
     this.renderRef = requestAnimationFrame(() => {
@@ -237,8 +217,6 @@ class BasicLayout extends React.PureComponent {
     const {
       route: { routes },
     } = this.props;
-    // console.log(memoizeOneFormatter(routes))
-    // let arr = memoizeOneFormatter(routes)
     return memoizeOneFormatter(routes);
   }
   /**
@@ -271,13 +249,9 @@ class BasicLayout extends React.PureComponent {
   getPageTitle = pathname => {
     const currRouterData = this.matchParamsPath(pathname);
 
-    if (!currRouterData) {
+    if (!currRouterData || !currRouterData.name) {
       return '当家师';
     }
-    // const message = formatMessage({
-    //   id: currRouterData.locale || currRouterData.name,
-    //   defaultMessage: currRouterData.name,
-    // });
     const message = currRouterData.name
     return `${message} - 当家师`;
   };
@@ -335,7 +309,7 @@ class BasicLayout extends React.PureComponent {
         {isTop && !isMobile ? null : (
           <SiderMenu
             logo={logo}
-            Authorized={Authorized}
+            // Authorized={Authorized}
             theme={navTheme}
             onCollapse={this.handleMenuCollapse}
             onClick={this.handleMenuClick}
@@ -368,12 +342,13 @@ class BasicLayout extends React.PureComponent {
             {this.state.panes.map(pane => <TabPane tab={pane.title} key={pane.key}></TabPane>)}
           </Tabs> */}
           <Content style={this.getContentStyle()}>
-            <Authorized
+            {/* <Authorized
               authority={routerConfig && routerConfig.authority}
               noMatch={<Exception403 />}
             >
               {children}
-            </Authorized>
+            </Authorized> */}
+            {children}
           </Content>
           {/* <Footer /> */}
         </Layout>

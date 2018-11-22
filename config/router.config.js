@@ -12,10 +12,8 @@ export default [
   {
     path: '/',
     component: '../layouts/BasicLayout',
-    Routes: ['src/pages/Authorized'],
-    authority: ['admin', 'user'],
     routes: [
-      { path: '/', redirect: '/sys/role' },
+      { path: '/', component: './User/Home' },
       {
         path: '/sys',
         icon: 'setting',
@@ -45,7 +43,10 @@ export default [
             path: '/sys/datadic',
             name: '数据字典',
             component: './Sys/DataDic',
-          }
+          },
+          {
+            component: '404',
+          },
         ]
       },
       {
@@ -68,6 +69,9 @@ export default [
             name: '用户管理',
             component: './sysUser/UserManage',
           },
+          {
+            component: '404',
+          },
         ]
       },
       {
@@ -89,6 +93,9 @@ export default [
             path: '/service/virtualdevice',
             name: '虚拟设备',
             component: './Service/VirtualDevice',
+          },
+          {
+            component: '404',
           },
         ]
       },
@@ -113,6 +120,9 @@ export default [
             name: '设备管理',
             component: './Factory/DeviceManage',
           },
+          {
+            component: '404',
+          },
         ]
       },
       {
@@ -125,11 +135,44 @@ export default [
             name: '设备管理',
             component: './Merchant/DeviceManage',
           },
+          {
+            component: '404',
+          },
         ]
+      },
+      {
+        name: 'exception',
+        icon: 'warning',
+        path: '/exception',
+        hideInMenu: true,
+        routes: [
+          // exception
+          {
+            path: '/exception/403',
+            name: '403',
+            component: './Exception/403',
+          },
+          {
+            path: '/exception/404',
+            name: '404',
+            component: './Exception/404',
+          },
+          {
+            path: '/exception/500',
+            name: '500',
+            component: './Exception/500',
+          },
+          {
+            component: '404',
+          },
+        ],
       },
       {
         component: '404',
       },
     ],
+  },
+  {
+    component: '404',
   },
 ];

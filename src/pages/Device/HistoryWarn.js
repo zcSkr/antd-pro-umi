@@ -33,7 +33,7 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -55,11 +55,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-        modules: '0',
-      },
+      formVals: {},
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
@@ -72,11 +68,9 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      prevState.formVals = nextProps.values
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
+
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
@@ -90,58 +84,25 @@ class UpdateForm extends PureComponent {
   renderContent = (formVals) => {
     const { form } = this.props;
     return (
-      <Timeline>
-        <Timeline.Item color="green" >
-          <Row><Col span={6}>2018-10-20 09:20:20</Col><Col span={6}><span style={{ color: '#a0d911' }}>正常</span></Col></Row>
-          <Row>
-            <Col span={8}>电压偏低:&nbsp;<span style={{ color: '#ffc53d' }}>AC160V</span></Col>
-            <Col span={8}>通信方式:&nbsp;wifi</Col>
-            <Col span={8}>设备信号:&nbsp;<span style={{ color: '#a0d911' }}>高</span></Col>
-          </Row>
-          <Divider style={{fontSize: 12}}>主机一</Divider>
-          <Row>
-            <Col span={6}>开机状态:&nbsp;<span style={{ color: '#a0d911' }}>压缩机正常</span></Col>
-            <Col span={6}>压缩机:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
-            <Col span={6}>风机散热:&nbsp;<span style={{ color: '#f5222d' }}>异常</span></Col>
-            <Col span={6}>散热状态:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
-          </Row>
-        </Timeline.Item>
-        <Timeline.Item color="green">
-          <Row><Col span={6}>2018-10-20 09:20:20</Col><Col span={6}><span style={{ color: '#a0d911' }}>正常</span></Col></Row>
-          <Row>
-            <Col span={8}>电压偏低:&nbsp;<span style={{ color: '#ffc53d' }}>AC160V</span></Col>
-            <Col span={8}>通信方式:&nbsp;wifi</Col>
-            <Col span={8}>设备信号:&nbsp;<span style={{ color: '#a0d911' }}>高</span></Col>
-          </Row>
-          <Divider style={{fontSize: 12}}>主机一</Divider>
-          <Row>
-            <Col span={6}>开机状态:&nbsp;<span style={{ color: '#a0d911' }}>压缩机正常</span></Col>
-            <Col span={6}>压缩机:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
-            <Col span={6}>风机散热:&nbsp;<span style={{ color: '#f5222d' }}>异常</span></Col>
-            <Col span={6}>散热状态:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
-          </Row>
-        </Timeline.Item>
-        <Timeline.Item color="red">
-          <p>Solve initial network problems 1</p>
-          <p>Solve initial network problems 2</p>
-          <p>Solve initial network problems 3 2015-09-01</p>
-        </Timeline.Item>
-      </Timeline>
-    );
-  };
-
-  renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
-    return (
-      <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
-        <Button key="forward" type="primary" onClick={this.handleConfirm}>
-          提交
-        </Button>
-      </div>
-    );
+      <Fragment>
+        <Row type="flex" justify="center" style={{marginBottom: 20,fontSize: 18}}>
+          <Col span={8}>2018-10-20 09:20:20</Col>
+          <Col span={2}><span style={{ color: '#a0d911' }}>正常</span></Col>
+        </Row>
+        <Row style={{textAlign: 'center'}}>
+          <Col span={8}>电压偏低:&nbsp;<span style={{ color: '#ffc53d' }}>AC160V</span></Col>
+          <Col span={8}>通信方式:&nbsp;wifi</Col>
+          <Col span={8}>设备信号:&nbsp;<span style={{ color: '#a0d911' }}>高</span></Col>
+        </Row>
+        <Divider key='divider' style={{fontSize: 14}}>主机一</Divider>
+        <Row style={{textAlign: 'center'}}>
+          <Col span={6}>开机状态:&nbsp;<span style={{ color: '#a0d911' }}>压缩机正常</span></Col>
+          <Col span={6}>压缩机:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
+          <Col span={6}>风机散热:&nbsp;<span style={{ color: '#f5222d' }}>异常</span></Col>
+          <Col span={6}>散热状态:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
+        </Row>
+      </Fragment>
+    )
   };
 
   render() {
@@ -156,8 +117,8 @@ class UpdateForm extends PureComponent {
         // bodyStyle={{ padding: '32px 40px 48px' }}
         title="报警详情"
         visible={updateModalVisible}
-        footer={null && this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        footer={null}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -175,11 +136,8 @@ class UpdateForm extends PureComponent {
 export default class HistoryWarn extends PureComponent {
   state = {
     updateModalVisible: false,
-    selectedRows: [],
     formValues: {},
     stepFormValues: {},
-    dataDicModalVisible: false,
-    dataDicRecord: {},
   };
 
   columns = [
@@ -208,28 +166,6 @@ export default class HistoryWarn extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({ type: 'manager/query' });
-  }
-
-  handleDeleteRecord(record) {
-    console.log(record)
-    const { dispatch } = this.props
-    dispatch({
-      type: 'role/service',
-      payload: {
-        service: 'remove',
-        data: { id: record.id }
-      },
-      onSuccess: res => {
-        console.log(res)
-        if (res.resultState == '1') {
-          dispatch({ type: 'manager/query' })
-          message.success(res.msg);
-        } else {
-          message.error(res.msg);
-        }
-      }
-    })
-
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -264,44 +200,46 @@ export default class HistoryWarn extends PureComponent {
     });
   };
 
-  handleDataDicModal = (flag, record) => {
-    this.setState({
-      dataDicModalVisible: !!flag,
-      dataDicRecord: record || {},
-    });
-  }
 
-  handleAdd = fields => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/add',
-      payload: {
-        desc: fields.desc,
-      },
-    });
+  handleSearch = e => {
+    e.preventDefault();
+    const { dispatch, form } = this.props;
 
-    message.success('添加成功');
-    this.handleModalVisible();
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+
+      const values = {
+        ...fieldsValue,
+        // updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+      };
+
+      this.setState({
+        formValues: values,
+      });
+      dispatch({
+        type: 'manager/query',
+        payload: {
+          account: values.account,
+          nickName: values.nickName,
+          draw: 1,
+          length: 10,
+          userType: 'admin'
+        },
+      });
+    });
   };
 
-  handleUpdate = fields => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/update',
-      payload: {
-        name: fields.name,
-        desc: fields.desc,
-        key: fields.key,
-      },
+  handleFormReset = () => {
+    const { form, dispatch } = this.props;
+    form.resetFields();
+    this.setState({
+      formValues: {},
     });
-
-    message.success('配置成功');
-    this.handleUpdateModalVisible();
+    dispatch({ type: 'manager/query' });
   };
 
   renderForm() {
-    const { form: { getFieldDecorator }, record } = this.props;
-    // console.log(record, 666)
+    const { form: { getFieldDecorator } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -347,43 +285,15 @@ export default class HistoryWarn extends PureComponent {
       </Form>
     );
   }
-  renderContent = (formVals) => {
-    const { form } = this.props;
-    return [
-      <FormItem key="account" hasFeedback {...this.formLayout} label="登录账号">
-        {form.getFieldDecorator('account', {
-          rules: [{ required: true, message: '请输入登录账号！' }],
-          initialValue: formVals.account,
-        })(<Input placeholder="请输入角色名称" />)}
-      </FormItem>,
-      <FormItem key="nickname" hasFeedback {...this.formLayout} label="昵称">
-        {form.getFieldDecorator('nickname', {
-          rules: [{ required: true, message: '请输入昵称！' }],
-          initialValue: formVals.nickname,
-        })(<Input placeholder="请输入昵称" />)}
-      </FormItem>,
-      <FormItem key="state" {...this.formLayout} label="状态">
-        {form.getFieldDecorator('state', {
-          initialValue: formVals.state || 1,
-        })(
-          <Select style={{ width: '100%' }}>
-            <Option value={1}>启用</Option>
-            <Option value={0}>冻结</Option>
-          </Select>
-        )}
-      </FormItem>,
-    ];
-  };
   render() {
     const {
       manager: { data: { list, pagination } },
       loading,
     } = this.props;
-    const { selectedRows, updateModalVisible, stepFormValues } = this.state;
+    const { updateModalVisible, stepFormValues } = this.state;
 
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
-      handleUpdate: this.handleUpdate,
     };
 
     return (
@@ -400,13 +310,10 @@ export default class HistoryWarn extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <StandardTable
-              isCheckBox={false}
-              selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
             <UpdateForm

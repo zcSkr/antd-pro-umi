@@ -1,6 +1,5 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import moment from 'moment';
 import {
   Row,
   Col,
@@ -33,15 +32,10 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
 import DicList from "@/pages/Sys/DicList";
 
-import styles from './RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
-const { Step } = Steps;
-const { TextArea } = Input;
 const { Option } = Select;
-const RadioGroup = Radio.Group;
-const CheckboxGroup = Checkbox.Group;
-const TreeNode = Tree.TreeNode;
 const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
@@ -55,11 +49,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-        modules: '0',
-      },
+      formVals: {},
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
@@ -72,10 +62,7 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
   handleConfirm = () => {
     const { form } = this.props;
@@ -90,38 +77,24 @@ class UpdateForm extends PureComponent {
   renderContent = (formVals) => {
     const { form } = this.props;
     return [
-      <FormItem key="account" hasFeedback {...this.formLayout} label="登录账号">
+      <FormItem key="account" hasFeedback {...this.formLayout} label="字典名称">
         {form.getFieldDecorator('account', {
-          rules: [{ required: true, message: '请输入登录账号！' }],
+          rules: [{ required: true, message: '请输入字典名称！' }],
           initialValue: formVals.account,
-        })(<Input placeholder="请输入角色名称" />)}
+        })(<Input placeholder="请输入字典名称" />)}
       </FormItem>,
-      <FormItem key="nickname" hasFeedback {...this.formLayout} label="昵称">
+      <FormItem key="nickname" hasFeedback {...this.formLayout} label="字典值">
         {form.getFieldDecorator('nickname', {
-          rules: [{ required: true, message: '请输入昵称！' }],
+          rules: [{ required: true, message: '请输入字典值！' }],
           initialValue: formVals.nickname,
-        })(<Input placeholder="请输入昵称" />)}
-      </FormItem>,
-      <FormItem key="state" {...this.formLayout} label="状态">
-        {form.getFieldDecorator('state', {
-          initialValue: formVals.state || 1,
-        })(
-          <Select style={{ width: '100%' }}>
-            <Option value={1}>启用</Option>
-            <Option value={0}>冻结</Option>
-          </Select>
-        )}
+        })(<Input placeholder="请输入字典值" />)}
       </FormItem>,
     ];
   };
 
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
       <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -138,10 +111,10 @@ class UpdateForm extends PureComponent {
         width={640}
         destroyOnClose
         // bodyStyle={{ padding: '32px 40px 48px' }}
-        title={isEmpty(this.props.values) ? '添加管理员' : '编辑管理员'}
+        title={isEmpty(this.props.values) ? '添加字典' : '编辑字典'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -185,7 +158,6 @@ export default class DataDic extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
         <div style={{ minWidth: 178 }}>
           <Tag color="#87d068" style={{ margin: 0 }} onClick={() => this.handleDataDicModal(true, record)}>数据列表</Tag>
@@ -320,12 +292,6 @@ export default class DataDic extends PureComponent {
     }
   };
 
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows,
-    });
-  };
-
   handleSearch = e => {
     e.preventDefault();
     const { dispatch, form } = this.props;
@@ -429,13 +395,7 @@ export default class DataDic extends PureComponent {
       manager: { data: { list, pagination } },
       loading,
     } = this.props;
-    const { selectedRows, updateModalVisible, stepFormValues, dataDicModalVisible, dataDicRecord } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
+    const { updateModalVisible, stepFormValues, dataDicModalVisible, dataDicRecord } = this.state;
 
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
@@ -445,40 +405,22 @@ export default class DataDic extends PureComponent {
     const dataDicMethods = {
       handleDataDicModal: this.handleDataDicModal,
     };
-    
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
 
     return (
       <PageHeaderWrapper title="数据字典">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
-                添加角色
+                添加字典
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
             </div>
             <StandardTable
-              isCheckBox={false}
-              selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>

@@ -65,7 +65,6 @@ export default class UpdatePsd extends PureComponent {
   render() {
     const { psdModalVisible, handlePsdModal } = this.props;
     const { formVals } = this.state;
-    console.log(formVals)
     return (
       <Modal
         width={640}

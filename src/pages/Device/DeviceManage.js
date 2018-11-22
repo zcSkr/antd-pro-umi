@@ -39,7 +39,7 @@ import Duration from '@/components/DeviceManage/Duration';
 import Appoint from '@/components/DeviceManage/Appoint';
 import HistoryWarn from '@/pages/Device/HistoryWarn';
 import OperationRecord from '@/pages/Device/OperationRecord';
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -61,10 +61,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-      },
+      formVals: {},
       expandedKeys: [],
       autoExpandParent: true,
       checkedKeys: [],
@@ -78,16 +75,11 @@ class UpdateForm extends PureComponent {
       wrapperCol: { span: 16 },
     };
   }
+
   static getDerivedStateFromProps(nextProps, prevState) {
-    const defaultFormValues = { state: 1 }
-    if (isEmpty(nextProps.values)) {
-      return { formVals: defaultFormValues }
-    } else if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals, ...nextProps.values } }
-    }
-    return null;
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
+
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
@@ -116,25 +108,25 @@ class UpdateForm extends PureComponent {
   renderContent = (formVals) => {
     const { form } = this.props;
     return [
-      <FormItem key="deviceNo" {...this.formLayout} label="设备编号">
+      <FormItem key="deviceNo" hasFeedback {...this.formLayout} label="设备编号">
         {form.getFieldDecorator('deviceNo', {
           rules: [{ required: true, message: '请输入设备编号！' }],
           initialValue: formVals.deviceNo,
         })(<Input placeholder="请输入设备编号" />)}
       </FormItem>,
-      <FormItem key="deviceIMEI" {...this.formLayout} label="设备串号">
+      <FormItem key="deviceIMEI" hasFeedback {...this.formLayout} label="设备串号">
         {form.getFieldDecorator('deviceIMEI', {
           rules: [{ required: true, message: '请输入设备串号！' }],
           initialValue: formVals.deviceIMEI,
         })(<Input placeholder="请输入设备串号" />)}
       </FormItem>,
-      <FormItem key="deviceNickname" {...this.formLayout} label="设备别名">
+      <FormItem key="deviceNickname" hasFeedback {...this.formLayout} label="设备别名">
         {form.getFieldDecorator('deviceNickname', {
           rules: [{ required: true, message: '请输入设备别名！' }],
           initialValue: formVals.deviceNickname,
         })(<Input placeholder="请输入设备别名" />)}
       </FormItem>,
-      <FormItem key="duration" {...this.formLayout} label="使用时长">
+      <FormItem key="duration" hasFeedback {...this.formLayout} label="使用时长">
         {form.getFieldDecorator('duration', {
           rules: [{ required: true, message: '请输入使用时长！' }],
           initialValue: formVals.duration,
@@ -142,12 +134,13 @@ class UpdateForm extends PureComponent {
       </FormItem>,
       <FormItem key="img" {...this.formLayout} label="封面图片">
         {form.getFieldDecorator('state', {
-          initialValue: formVals.img || 1,
+          rules: [{ required: true, message: '请上传封面图片！' }],
+          initialValue: formVals.img,
         })(
           <UploadImg
             action="//jsonplaceholder.typicode.com/posts/"
             totalNum={1}
-            multiple={true}
+            multiple={false}
             supportSort={true}
             fileList={this.state.fileList}
             beforeUpload={this.beforeUpload}
@@ -160,12 +153,8 @@ class UpdateForm extends PureComponent {
   };
 
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
       <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -185,7 +174,7 @@ class UpdateForm extends PureComponent {
         title={isEmpty(this.props.values) ? '添加设备' : '编辑设备'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -301,7 +290,7 @@ export default class DeviceManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
+      fixed: 'right',
       render: (text, record) => {
         const menu = (
           <Menu onClick={this.handleActionClick.bind(this, record)} selectedKeys={[]}>
@@ -322,11 +311,6 @@ export default class DeviceManage extends PureComponent {
                 更多操作 <Icon type="down" />
               </a>
             </Dropdown>
-            {/* <Tag color="#108ee9" style={{ margin: 0 }} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
-            <Divider type="vertical" />
-            <Tag color="#fadb14" style={{ margin: 0 }} onClick={() => this.handlePsdModal(true, record)}>历史报警</Tag>
-            <Divider type="vertical" />
-        <Tag color="#13c2c2" style={{ margin: 0 }}>操作记录</Tag> */}
           </div>
         )
       },
@@ -733,13 +717,8 @@ export default class DeviceManage extends PureComponent {
       handleUpdate: this.handleUpdate,
     };
 
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
-
     return (
       <PageHeaderWrapper title="设备管理">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -762,6 +741,7 @@ export default class DeviceManage extends PureComponent {
             </div>
             <StandardTable
               isCheckBox={true}
+              scroll={{x: 1300}}
               selectedRows={selectedRows}
               loading={loading}
               list={list}

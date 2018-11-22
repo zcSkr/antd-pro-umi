@@ -33,7 +33,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import UpdatePsd from '@/components/UpdatePsd/UpdatePsd';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from './RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -55,15 +55,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-        modules: '0',
-      },
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
+      formVals: {},
     };
 
     this.formLayout = {
@@ -72,10 +64,7 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
   handleConfirm = () => {
     const { form } = this.props;
@@ -126,12 +115,8 @@ class UpdateForm extends PureComponent {
   };
 
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
       <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -142,7 +127,7 @@ class UpdateForm extends PureComponent {
   render() {
     const { updateModalVisible, handleUpdateModalVisible } = this.props;
     const { formVals } = this.state;
-    console.log(formVals)
+    // console.log(formVals)
     return (
       <Modal
         width={640}
@@ -246,9 +231,9 @@ export default class RoleManage extends PureComponent {
     });
   }
   handleSwicthChange = (record) => {
-    console.log(record)
+    // console.log(record)
     let { manager: { data: { list } }, dispatch } = this.props;
-    console.log(list)
+    // console.log(list[0])
     list.forEach(item => {
       if (isEqual(item, record)) {
         item.loading = true
@@ -476,12 +461,6 @@ export default class RoleManage extends PureComponent {
       loading,
     } = this.props;
     const { selectedRows, updateModalVisible, stepFormValues, roleList, psdModalVisible, psdFormValues } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
 
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
@@ -491,13 +470,9 @@ export default class RoleManage extends PureComponent {
     const updatePsdMethods = {
       handlePsdModal: this.handlePsdModal,
     };
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
 
     return (
       <PageHeaderWrapper title="子管理员">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -505,25 +480,13 @@ export default class RoleManage extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
                 添加角色
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
             </div>
             <StandardTable
-              isCheckBox={false}
               selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>

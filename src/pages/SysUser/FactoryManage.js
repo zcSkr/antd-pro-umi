@@ -33,7 +33,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import Contacts from '@/pages/SysUser/Contacts';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -55,15 +55,7 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-        modules: '0',
-      },
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
+      formVals: {},
     };
 
     this.formLayout = {
@@ -72,15 +64,9 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    const defaultFormValues = { state: 1 }
-    if(isEmpty(nextProps.values)) {
-      return { formVals : defaultFormValues }
-    } else if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals : {...prevState.formVals, ...nextProps.values} }
-    }
-    return null;
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
+  
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
@@ -155,7 +141,7 @@ class UpdateForm extends PureComponent {
         title={isEmpty(this.props.values) ? '添加厂家' : '编辑厂家'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -212,7 +198,6 @@ export default class FactoryManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
         <div style={{ minWidth: 178 }}>
           <Tag color="#87d068" style={{ margin: 0 }} onClick={() => this.handleDirectoryModal(true, record)}>通讯录</Tag>
@@ -473,12 +458,6 @@ export default class FactoryManage extends PureComponent {
       loading,
     } = this.props;
     const { selectedRows, updateModalVisible, stepFormValues, roleList, directoryModalVisible, directoryFormValues } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
 
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
@@ -488,13 +467,9 @@ export default class FactoryManage extends PureComponent {
     const directoryMethods = {
       handleDirectoryModal: this.handleDirectoryModal,
     };
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
 
     return (
       <PageHeaderWrapper title="厂家管理">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -502,25 +477,13 @@ export default class FactoryManage extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
                 添加厂家
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
             </div>
             <StandardTable
-              isCheckBox={false}
               selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>

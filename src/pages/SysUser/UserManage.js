@@ -33,7 +33,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import Contacts from '@/pages/SysUser/Contacts';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -50,126 +50,6 @@ const getValue = obj =>
 const statusMap = ['success', 'error'];
 const status = ['启用', '冻结'];
 
-@Form.create()
-class UpdateForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      formVals: {
-        account: props.values.account,
-        description: props.values.description,
-        modules: '0',
-      },
-      expandedKeys: [],
-      autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
-    };
-
-    this.formLayout = {
-      labelCol: { span: 6 },
-      wrapperCol: { span: 16 },
-    };
-  }
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
-    }
-    return null;
-  }
-  handleConfirm = () => {
-    const { form } = this.props;
-    const { formVals } = this.state
-    form.validateFields((err, fieldsValue) => {
-      // console.log(err, fieldsValue)
-      if (err) return;
-      this.setState({ formVals: { ...fieldsValue } });
-    });
-  }
-
-  renderContent = (formVals) => {
-    const { form, roleList } = this.props;
-    roleList.forEach(item => {
-      item.value = item.id
-      item.label = item.roleName
-    })
-    return [
-      <FormItem key="account" hasFeedback {...this.formLayout} label="登录账号">
-        {form.getFieldDecorator('account', {
-          rules: [{ required: true, message: '请输入登录账号！' }],
-          initialValue: formVals.account,
-        })(<Input placeholder="请输入角色名称" />)}
-      </FormItem>,
-      <FormItem key="nickname" hasFeedback {...this.formLayout} label="昵称">
-        {form.getFieldDecorator('nickname', {
-          rules: [{ required: true, message: '请输入昵称！' }],
-          initialValue: formVals.nickname,
-        })(<Input placeholder="请输入昵称" />)}
-      </FormItem>,
-      <FormItem key="state" {...this.formLayout} label="状态">
-        {form.getFieldDecorator('state', {
-          initialValue: formVals.state || 1,
-        })(
-          <Select style={{ width: '100%' }}>
-            <Option value={1}>启用</Option>
-            <Option value={0}>冻结</Option>
-          </Select>
-        )}
-      </FormItem>,
-      <FormItem key="state1" {...this.formLayout} label="所属厂家">
-        {form.getFieldDecorator('state', {
-          rules: [{ required: true, message: '请选择所属厂家！' }],
-          initialValue: 1,
-        })(
-          <Select style={{ width: '100%' }}>
-            <Option value={1}>厂家一</Option>
-            <Option value={0}>厂家二</Option>
-          </Select>
-        )}
-      </FormItem>,
-      <FormItem key="role" {...this.formLayout} label="角色">
-        {form.getFieldDecorator('roleIds', {
-          rules: [{ required: true, message: '请选择角色！' }],
-          initialValue: formVals.roleIds ? formVals.roleIds.split(',') : [],
-        })(<CheckboxGroup options={roleList}  />)}
-      </FormItem>
-    ];
-  };
-
-  renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
-    return (
-      <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
-        <Button key="forward" type="primary" onClick={this.handleConfirm}>
-          提交
-        </Button>
-      </div>
-    );
-  };
-
-  render() {
-    const { updateModalVisible, handleUpdateModalVisible } = this.props;
-    const { formVals } = this.state;
-    console.log(formVals)
-    return (
-      <Modal
-        width={640}
-        destroyOnClose
-        // bodyStyle={{ padding: '32px 40px 48px' }}
-        title={isEmpty(this.props.formVals) ? '添加商家' : '编辑商家'}
-        visible={updateModalVisible}
-        footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
-      >
-        {this.renderContent(formVals)}
-      </Modal>
-    );
-  }
-}
-
 /* eslint react/no-multi-comp:0 */
 @connect(({ role, manager, loading }) => ({
   role,
@@ -179,11 +59,8 @@ class UpdateForm extends PureComponent {
 @Form.create()
 export default class UserManage extends PureComponent {
   state = {
-    updateModalVisible: false,
     selectedRows: [],
     formValues: {},
-    stepFormValues: {},
-    roleList: [],
     directoryModalVisible: false,
     directoryFormValues: {},
   };
@@ -219,7 +96,6 @@ export default class UserManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
         <div style={{ minWidth: 110 }}>
           <Tag color="#87d068" style={{ margin: 0 }} onClick={() => this.handleDirectoryModal(true, record)}>通讯录</Tag>
@@ -397,13 +273,6 @@ export default class UserManage extends PureComponent {
     });
   };
 
-
-  handleUpdateModalVisible = (flag, record) => {
-    this.setState({
-      updateModalVisible: !!flag,
-      stepFormValues: record || {},
-    });
-  };
   
   handleDirectoryModal = (flag, record) => {
     this.setState({
@@ -411,34 +280,6 @@ export default class UserManage extends PureComponent {
       directoryFormValues: record || {},
     });
   }
-
-  handleAdd = fields => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/add',
-      payload: {
-        desc: fields.desc,
-      },
-    });
-
-    message.success('添加成功');
-    this.handleModalVisible();
-  };
-
-  handleUpdate = fields => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/update',
-      payload: {
-        name: fields.name,
-        desc: fields.desc,
-        key: fields.key,
-      },
-    });
-
-    message.success('配置成功');
-    this.handleUpdateModalVisible();
-  };
 
   renderForm() {
     const {
@@ -477,50 +318,26 @@ export default class UserManage extends PureComponent {
       manager: { data: { list, pagination } },
       loading,
     } = this.props;
-    const { selectedRows, updateModalVisible, stepFormValues, roleList, directoryModalVisible, directoryFormValues } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
-
-    const updateMethods = {
-      handleUpdateModalVisible: this.handleUpdateModalVisible,
-      handleUpdate: this.handleUpdate,
-    };
+    const { selectedRows, directoryModalVisible, directoryFormValues } = this.state;
 
     const directoryMethods = {
       handleDirectoryModal: this.handleDirectoryModal,
     };
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
-
     return (
       <PageHeaderWrapper title="用户管理">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <StandardTable
-              isCheckBox={false}
               selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>
         </Card>
-        <UpdateForm
-          {...updateMethods}
-          updateModalVisible={updateModalVisible}
-          values={stepFormValues}
-          roleList={roleList}
-        />
         <Contacts
           {...directoryMethods}
           directoryModalVisible={directoryModalVisible}

@@ -16,7 +16,7 @@ import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import StandardTable from '@/components/StandardTable';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -39,11 +39,8 @@ const status = ['启用', '冻结'];
 export default class OperationRecord extends PureComponent {
   state = {
     updateModalVisible: false,
-    selectedRows: [],
     formValues: {},
     stepFormValues: {},
-    dataDicModalVisible: false,
-    dataDicRecord: {},
   };
 
   columns = [
@@ -96,10 +93,45 @@ export default class OperationRecord extends PureComponent {
     });
   };
 
+  handleSearch = e => {
+    e.preventDefault();
+    const { dispatch, form } = this.props;
+
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+
+      const values = {
+        ...fieldsValue,
+        // updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+      };
+
+      this.setState({
+        formValues: values,
+      });
+      dispatch({
+        type: 'manager/query',
+        payload: {
+          account: values.account,
+          nickName: values.nickName,
+          draw: 1,
+          length: 10,
+          userType: 'admin'
+        },
+      });
+    });
+  };
+
+  handleFormReset = () => {
+    const { form, dispatch } = this.props;
+    form.resetFields();
+    this.setState({
+      formValues: {},
+    });
+    dispatch({ type: 'manager/query' });
+  };
 
   renderForm() {
-    const { form: { getFieldDecorator }, record } = this.props;
-    // console.log(record, 666)
+    const { form: { getFieldDecorator } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
@@ -177,7 +209,6 @@ export default class OperationRecord extends PureComponent {
       manager: { data: { list, pagination } },
       loading,
     } = this.props;
-    const { selectedRows } = this.state;
 
     return (
       <Modal
@@ -193,13 +224,10 @@ export default class OperationRecord extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <StandardTable
-              isCheckBox={false}
-              selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>

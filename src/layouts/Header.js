@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi/locale';
 import { Layout, message } from 'antd';
 import Animate from 'rc-animate';
 import { connect } from 'dva';
@@ -7,7 +6,7 @@ import router from 'umi/router';
 import GlobalHeader from '@/components/GlobalHeader';
 import TopNavHeader from '@/components/TopNavHeader';
 import styles from './Header.less';
-import Authorized from '@/utils/Authorized';
+// import Authorized from '@/utils/Authorized';
 import UpdatePsd from '@/components/UpdatePsd/UpdatePsd';
 import app from '@/config/app';
 const { Header } = Layout;
@@ -42,15 +41,6 @@ class HeaderView extends PureComponent {
       return '100%';
     }
     return collapsed ? 'calc(100% - 80px)' : 'calc(100% - 256px)';
-  };
-
-  handleNoticeClear = type => {
-    message.success(`${formatMessage({ id: 'component.noticeIcon.cleared' })} ${formatMessage({ id: `component.globalHeader.${type}` })}`);
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'global/clearNotices',
-      payload: type,
-    });
   };
 
   handleMenuClick = ({ key }) => {
@@ -117,7 +107,7 @@ class HeaderView extends PureComponent {
           <TopNavHeader
             theme={navTheme}
             mode="horizontal"
-            Authorized={Authorized}
+            // Authorized={Authorized}
             onCollapse={handleMenuCollapse}
             onMenuClick={this.handleMenuClick}
             {...this.props}
@@ -144,7 +134,7 @@ class HeaderView extends PureComponent {
   }
 }
 
-export default connect(({ user, global, setting, loading }) => ({
+export default connect(({ global, setting }) => ({
   currentUser: app.getUnionuser(),
   collapsed: global.collapsed,
   setting,

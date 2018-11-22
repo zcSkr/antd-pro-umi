@@ -17,7 +17,7 @@ export default {
       let { data } = yield select(state => state.role);
       let { current, pageSize } = data.pagination;
       const response = yield call(service_manager.query, { draw:current, length:pageSize, userType: 'admin', ...payload });
-      console.log(response)
+      // console.log(response)
       if (response) {
         yield put({
           type: 'save',

@@ -7,39 +7,24 @@ import {
   Card,
   Form,
   Input,
-  Select,
-  Icon,
   Button,
-  Dropdown,
-  Menu,
-  InputNumber,
-  DatePicker,
   Modal,
   message,
-  Badge,
   Divider,
-  Steps,
-  Radio,
   Popconfirm,
   Tree,
   Tag,
   Spin,
-  Switch,
 } from 'antd';
 import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import { arrayMove } from 'react-sortable-hoc';
-import UploadImg from '@/components/UploadImg/UpLoadImg';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from './RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
-const { Step } = Steps;
 const { TextArea } = Input;
-const { Option } = Select;
-const RadioGroup = Radio.Group;
 const TreeNode = Tree.TreeNode;
 const getValue = obj =>
   Object.keys(obj)
@@ -54,15 +39,8 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      formVals: {
-        roleName: props.values.roleName,
-        description: props.values.description,
-        modules: '0',
-      },
-      expandedKeys: [],
+      formVals: {},
       autoExpandParent: true,
-      checkedKeys: [],
-      selectedKeys: [],
     };
 
     this.formLayout = {
@@ -71,38 +49,30 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals: { ...prevState.formVals,...nextProps.values } }
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals  } }
   }
+
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
+    // console.log(formVals)
+    form.setFieldsValue({ moduleIds: formVals.moduleIds })
     form.validateFields((err, fieldsValue) => {
       // console.log(err, fieldsValue)
       if (err) return;
+      console.log(err, fieldsValue)
       this.setState({ formVals: { ...fieldsValue } });
-    });
-  }
-  onExpand = (expandedKeys) => {
-    console.log('onExpand', expandedKeys);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    this.setState({
-      expandedKeys,
-      autoExpandParent: false,
     });
   }
 
   onCheck = (checkedKeys) => {
-    console.log('onCheck', checkedKeys);
-    this.setState({ checkedKeys, selectedKeys: checkedKeys });
+    // console.log('onCheck', checkedKeys);
+    this.setState({ formVals: { moduleIds: checkedKeys.join(',') } });
   }
 
   onSelect = (selectedKeys, info) => {
     console.log('onSelect', selectedKeys);
-    this.setState({ selectedKeys, checkedKeys: selectedKeys });
+    this.setState({ checkedKeys: selectedKeys });
   }
   renderTreeNodes = (data) => {
     return data.map((item) => {
@@ -117,43 +87,8 @@ class UpdateForm extends PureComponent {
     });
   };
   renderContent = (formVals) => {
-    const treeData = [{
-      title: '0-0',
-      key: '0-0',
-      children: [{
-        title: '0-0-0',
-        key: '0-0-0',
-        children: [
-          { title: '0-0-0-0', key: '0-0-0-0' },
-          { title: '0-0-0-1', key: '0-0-0-1' },
-          { title: '0-0-0-2', key: '0-0-0-2' },
-        ],
-      }, {
-        title: '0-0-1',
-        key: '0-0-1',
-        children: [
-          { title: '0-0-1-0', key: '0-0-1-0' },
-          { title: '0-0-1-1', key: '0-0-1-1' },
-          { title: '0-0-1-2', key: '0-0-1-2' },
-        ],
-      }, {
-        title: '0-0-2',
-        key: '0-0-2',
-      }],
-    }, {
-      title: '0-1',
-      key: '0-1',
-      children: [
-        { title: '0-1-0-0', key: '0-1-0-0' },
-        { title: '0-1-0-1', key: '0-1-0-1' },
-        { title: '0-1-0-2', key: '0-1-0-2' },
-      ],
-    }, {
-      title: '0-2',
-      key: '0-2',
-    }];
-    const { form, moduleList, moduleLoading } = this.props;
-
+    const { checkedKeys } = this.state;
+    const { form, moduleList, moduleLoading, values } = this.props;
     moduleList.forEach(item => {
       item.title = item.moduleName;
       item.key = item.id;
@@ -172,7 +107,7 @@ class UpdateForm extends PureComponent {
               initialValue: formVals.roleName,
             })(<Input placeholder="请输入角色名称" />)}
           </FormItem>
-          <FormItem key="desc " hasFeedback {...this.formLayout} label="角色描述">
+          <FormItem key="desc" {...this.formLayout} label="角色描述">
             {form.getFieldDecorator('description', {
               initialValue: formVals.description,
             })(<TextArea rows={4} placeholder="请输入角色描述" />)}
@@ -181,20 +116,18 @@ class UpdateForm extends PureComponent {
         <Col span={8}>
           {
             moduleLoading ? <Spin /> :
-            <FormItem key="modules" {...this.formLayout}>
-              {form.getFieldDecorator('modules', {
+            <FormItem key="moduleIds" {...this.formLayout} validateStatus="error">
+              {form.getFieldDecorator('moduleIds', {
                 rules: [{ required: true, message: '请选择模块！' }]
               })(<Tree
                 checkable
-                // onExpand={this.onExpand}
-                // expandedKeys={this.state.expandedKeys}
                 multiple={true}
                 defaultExpandAll={true}
                 autoExpandParent={this.state.autoExpandParent}
                 onCheck={this.onCheck}
-                checkedKeys={this.state.checkedKeys}
-                onSelect={this.onSelect}
-                selectedKeys={this.state.selectedKeys}
+                checkedKeys={formVals.moduleIds ? formVals.moduleIds.split(',') : []}
+                // onSelect={this.onSelect}
+                selectedKeys={[]}
               >
                 {this.renderTreeNodes(moduleList)}
               </Tree>)}
@@ -206,12 +139,8 @@ class UpdateForm extends PureComponent {
   };
 
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
       <div style={{ textAlign: 'center' }}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -222,6 +151,7 @@ class UpdateForm extends PureComponent {
   render() {
     const { updateModalVisible, handleUpdateModalVisible } = this.props;
     const { formVals } = this.state;
+    // console.log(formVals)
     return (
       <Modal
         width={640}
@@ -230,7 +160,7 @@ class UpdateForm extends PureComponent {
         title={isEmpty(formVals) ? '添加角色' : '编辑角色'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({formVals: {},checkedKeys: []});handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -249,7 +179,6 @@ class UpdateForm extends PureComponent {
 export default class RoleManage extends PureComponent {
   state = {
     updateModalVisible: false,
-    selectedRows: [],
     formValues: {},
     stepFormValues: {},
     moduleList: [],
@@ -300,7 +229,6 @@ export default class RoleManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
         <div style={{ minWidth: 115 }}>
           {/* <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a> */}
@@ -394,36 +322,6 @@ export default class RoleManage extends PureComponent {
     });
   };
 
-
-  handleMenuClick = e => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-
-    if (!selectedRows) return;
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'rule/remove',
-          payload: {
-            key: selectedRows.map(row => row.key),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows,
-    });
-  };
 
   handleSearch = e => {
     e.preventDefault();
@@ -520,47 +418,21 @@ export default class RoleManage extends PureComponent {
     );
   }
 
-  handleUpLoadChange = ({ file, fileList, event }) => {
-    this.setState({ fileList: fileList.filter(item => item) })
-  }
-  beforeUpload = (file, fileList) => {
-    // console.log(fileList, 'before')
-    if(fileList.length + this.state.fileList.length > this.state.totalNum){
-      message.warning('图片不能超过6张')
-      return false
-    }
-    return true
-  }
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    this.setState({ fileList: arrayMove(this.state.fileList, oldIndex, newIndex) });
-  }
-
   render() {
     const {
       role: { data: { list, pagination } },
       loading,
       moduleLoading
     } = this.props;
-    const { selectedRows, updateModalVisible, stepFormValues, moduleList, fileList, totalNum } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
-
+    const { updateModalVisible, stepFormValues, moduleList } = this.state;
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
       handleUpdate: this.handleUpdate,
       moduleLoading
     };
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
 
     return (
       <PageHeaderWrapper title="角色管理">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -568,35 +440,13 @@ export default class RoleManage extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
                 添加角色
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
-                </span>
-              )}
             </div>
-            {/* <UploadImg
-              action="//jsonplaceholder.typicode.com/posts/"
-              totalNum={totalNum}
-              multiple={true}
-              supportSort={true}
-              fileList={fileList}
-              beforeUpload={this.beforeUpload}
-              onChange={this.handleUpLoadChange}
-              onSortEnd={this.onSortEnd}
-            /> */}
             <StandardTable
               isCheckBox={false}
-              selectedRows={selectedRows}
               loading={loading}
               list={list}
               pagination={pagination}
               columns={this.columns}
-              onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
           </div>

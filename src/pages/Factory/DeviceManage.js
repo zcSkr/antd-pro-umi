@@ -39,7 +39,7 @@ import Duration from '@/components/FactoryAuthority/Duration';
 import Appoint from '@/components/FactoryAuthority/Appoint';
 import HistoryWarn from '@/pages/Device/HistoryWarn';
 import OperationRecord from '@/pages/Device/OperationRecord';
-import styles from '../Sys/RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -55,6 +55,145 @@ const getValue = obj =>
 
 const statusMap = ['success', 'error'];
 const status = ['启用', '冻结'];
+
+@Form.create()
+class UpdateForm extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      formVals: {},
+      expandedKeys: [],
+      autoExpandParent: true,
+      checkedKeys: [],
+      selectedKeys: [],
+
+      fileList: [],
+    };
+
+    this.formLayout = {
+      labelCol: { span: 6 },
+      wrapperCol: { span: 16 },
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
+  }
+
+  handleConfirm = () => {
+    const { form } = this.props;
+    const { formVals } = this.state
+    form.validateFields((err, fieldsValue) => {
+      // console.log(err, fieldsValue)
+      if (err) return;
+      this.setState({ formVals: { ...fieldsValue } });
+    });
+  }
+
+  handleUpLoadChange = ({ file, fileList, event }) => {
+    this.setState({ fileList: fileList.filter(item => item) })
+  }
+  beforeUpload = (file, fileList) => {
+    // console.log(fileList, 'before')
+    if (fileList.length + this.state.fileList.length > this.state.totalNum) {
+      message.warning('图片不能超过6张')
+      return false
+    }
+    return true
+  }
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    this.setState({ fileList: arrayMove(this.state.fileList, oldIndex, newIndex) });
+  }
+
+  renderContent = (formVals) => {
+    const { form } = this.props;
+    return [
+      <FormItem key="deviceNo" {...this.formLayout} label="设备编号">
+        456464556
+      </FormItem>,
+      <FormItem key="deviceIMEI" {...this.formLayout} label="设备串号">
+        48789
+      </FormItem>,
+      <FormItem key="duration" {...this.formLayout} label="使用时长">
+        66
+      </FormItem>,
+      <FormItem key="deviceNickname" {...this.formLayout} label="设备别名">
+        {form.getFieldDecorator('deviceNickname', {
+          initialValue: formVals.deviceNickname,
+        })(<Input placeholder="请输入设备别名" />)}
+      </FormItem>,
+      <FormItem key="warranty" {...this.formLayout} label="保修期至">
+        {form.getFieldDecorator('warranty', {
+          initialValue: formVals.warranty,
+        })(
+          <DatePicker
+            style={{ width: '100%' }}
+            showTime
+            format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择保修期"
+          // onChange={onChange}
+          // onOk={onOk}
+          />
+        )}
+      </FormItem>,
+      <FormItem key="img" {...this.formLayout} label="封面图片">
+        {form.getFieldDecorator('state', {
+          initialValue: formVals.img || 1,
+        })(
+          <UploadImg
+            action="//jsonplaceholder.typicode.com/posts/"
+            totalNum={1}
+            multiple={false}
+            supportSort={true}
+            fileList={this.state.fileList}
+            beforeUpload={this.beforeUpload}
+            onChange={this.handleUpLoadChange}
+            onSortEnd={this.onSortEnd}
+          />
+        )}
+      </FormItem>,
+      <FormItem key="title" {...this.formLayout} label="保修标题">
+        {form.getFieldDecorator('title', {
+          initialValue: formVals.title,
+        })(<Input placeholder="请输入保修标题" />)}
+      </FormItem>,
+      <FormItem key="desc" {...this.formLayout} label="保修说明">
+        {form.getFieldDecorator('desc', {
+          initialValue: formVals.desc,
+        })(<TextArea rows={4} placeholder="请输入保修说明" />)}
+      </FormItem>,
+    ];
+  };
+
+  renderFooter = () => {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <Button key="forward" type="primary" onClick={this.handleConfirm}>
+          提交
+        </Button>
+      </div>
+    );
+  };
+
+  render() {
+    const { updateModalVisible, handleUpdateModalVisible } = this.props;
+    const { formVals } = this.state;
+    console.log(formVals)
+    return (
+      <Modal
+        width={640}
+        destroyOnClose
+        // bodyStyle={{ padding: '32px 40px 48px' }}
+        title='编辑设备'
+        visible={updateModalVisible}
+        footer={this.renderFooter()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
+      >
+        {this.renderContent(formVals)}
+      </Modal>
+    );
+  }
+}
 
 /* eslint react/no-multi-comp:0 */
 @connect(({ role, manager, loading }) => ({
@@ -152,7 +291,7 @@ export default class DeviceManage extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
+      fixed: 'right',
       render: (text, record) => {
         const menu = (
           <Menu onClick={this.handleActionClick.bind(this, record)} selectedKeys={[]}>
@@ -173,11 +312,6 @@ export default class DeviceManage extends PureComponent {
                 更多操作 <Icon type="down" />
               </a>
             </Dropdown>
-            {/* <Tag color="#108ee9" style={{ margin: 0 }} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
-            <Divider type="vertical" />
-            <Tag color="#fadb14" style={{ margin: 0 }} onClick={() => this.handlePsdModal(true, record)}>历史报警</Tag>
-            <Divider type="vertical" />
-        <Tag color="#13c2c2" style={{ margin: 0 }}>操作记录</Tag> */}
           </div>
         )
       },
@@ -544,7 +678,7 @@ export default class DeviceManage extends PureComponent {
       manager: { data: { list, pagination } },
       loading,
     } = this.props;
-    const { selectedRows } = this.state;
+    const { selectedRows, updateModalVisible, stepFormValues } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="prompt">设置提示</Menu.Item>
@@ -554,13 +688,13 @@ export default class DeviceManage extends PureComponent {
       </Menu>
     );
 
-    const MyIcon = Icon.createFromIconfontCN({
-      scriptUrl: '//at.alicdn.com/t/font_900467_07qyp7gznw9p.js', // 在 iconfont.cn 上生成
-    });
+    const updateMethods = {
+      handleUpdateModalVisible: this.handleUpdateModalVisible,
+      handleUpdate: this.handleUpdate,
+    };
 
     return (
       <PageHeaderWrapper title="设备管理">
-        {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -580,6 +714,7 @@ export default class DeviceManage extends PureComponent {
             </div>
             <StandardTable
               isCheckBox={true}
+              scroll={{ x: 1300 }}
               selectedRows={selectedRows}
               loading={loading}
               list={list}
@@ -590,6 +725,12 @@ export default class DeviceManage extends PureComponent {
             />
           </div>
         </Card>
+
+        <UpdateForm
+          {...updateMethods}
+          updateModalVisible={updateModalVisible}
+          values={stepFormValues}
+        />
         <Prompt
           promptVisible={this.state.promptVisible}
           handleVisibleModal={this.handleVisibleModal}

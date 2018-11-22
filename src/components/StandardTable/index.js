@@ -26,7 +26,7 @@ class StandardTable extends PureComponent {
 
   static getDerivedStateFromProps(nextProps) {
     // clean state
-    if (nextProps.selectedRows.length === 0) {
+    if (nextProps.selectedRows && nextProps.selectedRows.length === 0) {
       const needTotalList = initTotalList(nextProps.columns);
       return {
         selectedRowKeys: [],
@@ -69,7 +69,8 @@ class StandardTable extends PureComponent {
       loading,
       columns,
       rowKey,
-      isCheckBox
+      isCheckBox,
+      scroll,
     } = this.props;
     const paginationProps = {
       pageSizeOptions: ['10','20','50','100'],
@@ -92,7 +93,7 @@ class StandardTable extends PureComponent {
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
         {
-          isCheckBox ? 
+          isCheckBox && selectedRowKeys.length ? 
           <Alert
             message={
               <Fragment>
@@ -119,7 +120,7 @@ class StandardTable extends PureComponent {
         <Table
           // bordered
           size='small'
-          // scroll={{x: 1300}}
+          scroll={scroll}
           loading={loading}
           rowKey={record => record.id}
           rowSelection={isCheckBox ? rowSelection : null}

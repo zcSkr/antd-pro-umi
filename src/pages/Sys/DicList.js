@@ -32,7 +32,7 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from './RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
 const { Step } = Steps;
@@ -71,11 +71,9 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.formVals, nextProps.values)) {
-      prevState.formVals = nextProps.values
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
+
   handleConfirm = () => {
     const { form } = this.props;
     const { formVals } = this.state
@@ -131,7 +129,7 @@ class UpdateForm extends PureComponent {
         title="添加数据"
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -175,6 +173,7 @@ export default class DicList extends PureComponent {
     },
     {
       title: '操作',
+      width: 40,
       render: (text, record) => (
         <Popconfirm title="确定删除?" onConfirm={() => this.handleDeleteRecord(record)} okText="确定" cancelText="取消">
           <Tag color="#f50" style={{ margin: 0 }}>删除</Tag>
@@ -297,27 +296,17 @@ export default class DicList extends PureComponent {
   renderContent = (formVals) => {
     const { form } = this.props;
     return [
-      <FormItem key="account" hasFeedback {...this.formLayout} label="登录账号">
+      <FormItem key="account" hasFeedback {...this.formLayout} label="数据名称">
         {form.getFieldDecorator('account', {
-          rules: [{ required: true, message: '请输入登录账号！' }],
+          rules: [{ required: true, message: '请输入数据名称！' }],
           initialValue: formVals.account,
-        })(<Input placeholder="请输入角色名称" />)}
+        })(<Input placeholder="请输入数据名称" />)}
       </FormItem>,
-      <FormItem key="nickname" hasFeedback {...this.formLayout} label="昵称">
+      <FormItem key="nickname" hasFeedback {...this.formLayout} label="数据值">
         {form.getFieldDecorator('nickname', {
-          rules: [{ required: true, message: '请输入昵称！' }],
+          rules: [{ required: true, message: '请输入数据值！' }],
           initialValue: formVals.nickname,
-        })(<Input placeholder="请输入昵称" />)}
-      </FormItem>,
-      <FormItem key="state" {...this.formLayout} label="状态">
-        {form.getFieldDecorator('state', {
-          initialValue: formVals.state || 1,
-        })(
-          <Select style={{ width: '100%' }}>
-            <Option value={1}>启用</Option>
-            <Option value={0}>冻结</Option>
-          </Select>
-        )}
+        })(<Input placeholder="请输入数据值" />)}
       </FormItem>,
     ];
   };

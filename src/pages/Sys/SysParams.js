@@ -12,19 +12,14 @@ import {
   Button,
   Dropdown,
   Menu,
-  InputNumber,
-  DatePicker,
   Modal,
   message,
-  Badge,
   Divider,
   Steps,
   Radio,
   Popconfirm,
   Tree,
   Tag,
-  Spin,
-  Switch,
   Upload,
 } from 'antd';
 import Ellipsis from 'ant-design-pro/lib/Ellipsis';
@@ -34,14 +29,11 @@ import { arrayMove } from 'react-sortable-hoc';
 import WangEditor from '@/components/WangEditor/WangEditor';
 import { isEqual, isEmpty } from 'underscore';
 
-import styles from './RoleManage.less';
+import styles from '../Table.less';
 
 const FormItem = Form.Item;
-const { Step } = Steps;
 const { TextArea } = Input;
 const { Option } = Select;
-const RadioGroup = Radio.Group;
-const TreeNode = Tree.TreeNode;
 const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
@@ -56,7 +48,6 @@ class UpdateForm extends PureComponent {
     super(props);
     this.state = {
       formVals: {},
-      selectedKeys: [],
     };
 
     this.formLayout = {
@@ -65,16 +56,7 @@ class UpdateForm extends PureComponent {
     };
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    const defaultFormValues = {
-      codeLevel: 'sys',
-      valueType: 'txt',
-    }
-    if(isEmpty(nextProps.values)) {
-      return { formVals : defaultFormValues }
-    } else if (!isEqual(prevState.formVals, nextProps.values)) {
-      return { formVals : {...prevState.formVals, ...nextProps.values} }
-    }
-    return null;
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
   }
   handleConfirm = () => {
     const { form } = this.props;
@@ -87,16 +69,16 @@ class UpdateForm extends PureComponent {
     });
     console.log(formVals)
   }
-  handleSelectChange = (field,value,option) => {
+  handleSelectChange = (field, value, option) => {
     let { formVals } = this.state
-    console.log(field,value);
+    console.log(field, value);
     formVals[field] = value
-    this.setState({formVals: formVals})
+    this.setState({ formVals })
   }
   renderContent = (formVals) => {
     const { form } = this.props;
     // console.log(formVals)
-    const props = {
+    const uploadProps = {
       name: 'file',
       action: '//jsonplaceholder.typicode.com/posts/',
       headers: {
@@ -119,7 +101,7 @@ class UpdateForm extends PureComponent {
           {form.getFieldDecorator('codeLevel', {
             initialValue: formVals.codeLevel || 'sys',
           })(
-            <Select style={{ width: '100%' }} onChange={this.handleSelectChange.bind(this,'codeLevel')}>
+            <Select style={{ width: '100%' }} onChange={this.handleSelectChange.bind(this, 'codeLevel')}>
               <Option value="sys">系统级别</Option>
               <Option value="bis">业务级别</Option>
             </Select>
@@ -141,7 +123,7 @@ class UpdateForm extends PureComponent {
           {form.getFieldDecorator('valueType', {
             initialValue: formVals.valueType || 'txt',
           })(
-            <Select style={{ width: '100%' }} onChange={this.handleSelectChange.bind(this,'valueType')}>
+            <Select style={{ width: '100%' }} onChange={this.handleSelectChange.bind(this, 'valueType')}>
               <Option value="txt">文本</Option>
               <Option value="imgContent">图文</Option>
               <Option value="file">文件</Option>
@@ -149,35 +131,35 @@ class UpdateForm extends PureComponent {
           )}
         </FormItem>
         {
-          formVals.valueType == 'txt' ?
-          <FormItem key="codeValue" {...this.formLayout} label="值">
-            {form.getFieldDecorator('codeValue', {
-              rules: [{ required: true}],
-              initialValue: formVals.codeValue,
-            })(<Input placeholder="请输入值" />)}
-          </FormItem> : null
+          formVals.valueType == 'txt' || !formVals.valueType ?
+            <FormItem key="codeValue" {...this.formLayout} label="值">
+              {form.getFieldDecorator('codeValue', {
+                rules: [{ required: true, message: '请输入值！' }],
+                initialValue: this.props.values.valueType == 'txt' ? formVals.codeValue : '',
+              })(<Input placeholder="请输入值" />)}
+            </FormItem> : null
         }
         {
           formVals.valueType == 'imgContent' ?
-          <FormItem key="codeValue" {...this.formLayout} label="值">
-            {form.getFieldDecorator('codeValue', {
-              rules: [{ required: true}],
-              initialValue: formVals.codeValue,
-            })(<WangEditor editor={(editor) => this.setState({editor})}></WangEditor>)}
-          </FormItem> : null
+            <FormItem key="codeValue" {...this.formLayout} label="值">
+              {form.getFieldDecorator('codeValue', {
+                rules: [{ required: true }],
+                initialValue: this.props.values.valueType == 'imgContent' ? formVals.codeValue : '',
+              })(<WangEditor editor={(editor) => this.setState({ editor })}></WangEditor>)}
+            </FormItem> : null
         }
         {
           formVals.valueType == 'file' ?
-          <FormItem key="codeValue" {...this.formLayout} label="值">
-            {form.getFieldDecorator('codeValue', {
-              rules: [{ required: true}],
-              initialValue: formVals.codeValue,
-            })(
-              <Upload {...props}>
-                <Button><Icon type="upload" /> 选择文件</Button>
-              </Upload>
-            )}
-          </FormItem> : null
+            <FormItem key="codeValue" {...this.formLayout} label="值">
+              {form.getFieldDecorator('codeValue', {
+                rules: [{ required: true }],
+                initialValue: this.props.values.valueType == 'file' ? formVals.codeValue : '',
+              })(
+                <Upload {...uploadProps}>
+                  <Button><Icon type="upload" /> 选择文件</Button>
+                </Upload>
+              )}
+            </FormItem> : null
         }
         <FormItem key="description" {...this.formLayout} label="描述">
           {form.getFieldDecorator('description', {
@@ -188,12 +170,8 @@ class UpdateForm extends PureComponent {
     );
   };
   renderFooter = () => {
-    const { handleUpdateModalVisible } = this.props;
     return (
-      <div style={{textAlign: 'center'}}>
-        {/* <Button key="cancel" onClick={() => handleUpdateModalVisible()}>
-          取消
-    </Button> */}
+      <div style={{ textAlign: 'center' }}>
         <Button key="forward" type="primary" onClick={this.handleConfirm}>
           提交
         </Button>
@@ -204,7 +182,7 @@ class UpdateForm extends PureComponent {
   render() {
     const { updateModalVisible, handleUpdateModalVisible } = this.props;
     const { formVals } = this.state;
-    console.log(formVals)
+    // console.log(formVals)
     return (
       <Modal
         width={640}
@@ -213,7 +191,7 @@ class UpdateForm extends PureComponent {
         title={isEmpty(this.props.values) ? '添加参数' : '编辑参数'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>
@@ -228,6 +206,11 @@ class UpdateForm extends PureComponent {
 }))
 @Form.create()
 export default class SysParams extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.inputRef = React.createRef();
+  }
   state = {
     updateModalVisible: false,
     selectedRows: [],
@@ -252,13 +235,6 @@ export default class SysParams extends PureComponent {
       dataIndex: 'codeKey',
       width: '20%',
     },
-    // {
-    //   title: '值',
-    //   dataIndex: 'codeValue',
-    //   width: "15%",
-    //   // render: (text, record) => <Ellipsis length={80} fullWidthRecognition tooltip>{text}</Ellipsis>
-    //   render: (text, record) => <div dangerouslySetInnerHTML={{_html: '123'}}>66</div>
-    // },
     {
       title: '创建时间',
       dataIndex: 'createTime',
@@ -267,16 +243,12 @@ export default class SysParams extends PureComponent {
     },
     {
       title: '操作',
-      width: 200,
       render: (text, record) => (
         <div style={{ minWidth: 115 }}>
-          {/* <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a> */}
-          <Tag color="#108ee9" style={{margin: 0}} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
+          <Tag color="#108ee9" style={{ margin: 0 }} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
           <Divider type="vertical" />
           <Popconfirm title="确定删除?" onConfirm={() => this.handleDeleteRecord(record)} okText="确定" cancelText="取消">
-            {/* <a style={{color: '#ff4d4f'}}>删除</a> */}
-            {/* <Button size="small" type="danger">删除</Button> */}
-            <Tag color="#f50" style={{margin: 0}}>删除</Tag>
+            <Tag color="#f50" style={{ margin: 0 }}>删除</Tag>
           </Popconfirm>
 
         </div>
@@ -332,7 +304,7 @@ export default class SysParams extends PureComponent {
     //   type: 'rule/fetch',
     //   payload: params,
     // });
-    dispatch({ 
+    dispatch({
       type: 'params/query',
       payload: params,
     });
