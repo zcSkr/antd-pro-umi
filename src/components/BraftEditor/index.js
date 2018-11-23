@@ -117,7 +117,7 @@ export default class UploadDemo extends React.Component {
               imageControls={imageControls}
               fontSizes={[12, 14, 16, 18, 20, 24,28, 30, 32, 36, 40, 48]}
               contentStyle={{height: 500}}
-              // onSave={() => this.editorInstance.getDraftInstance().onBlur()}
+              onSave={() => this.editorInstance.getDraftInstance().blur()} //ctrl+s保存的回调
             />
           </Spin>
         </div>
