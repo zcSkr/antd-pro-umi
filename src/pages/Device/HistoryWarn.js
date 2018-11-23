@@ -89,17 +89,20 @@ class UpdateForm extends PureComponent {
           <Col span={8}>2018-10-20 09:20:20</Col>
           <Col span={2}><span style={{ color: '#a0d911' }}>正常</span></Col>
         </Row>
-        <Row style={{textAlign: 'center'}}>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }} style={{textAlign: 'center'}}>
           <Col span={8}>电压偏低:&nbsp;<span style={{ color: '#ffc53d' }}>AC160V</span></Col>
           <Col span={8}>通信方式:&nbsp;wifi</Col>
           <Col span={8}>设备信号:&nbsp;<span style={{ color: '#a0d911' }}>高</span></Col>
         </Row>
         <Divider key='divider' style={{fontSize: 14}}>主机一</Divider>
-        <Row style={{textAlign: 'center'}}>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }} style={{textAlign: 'center'}} style={{marginBottom: 10}}>
           <Col span={6}>开机状态:&nbsp;<span style={{ color: '#a0d911' }}>压缩机正常</span></Col>
           <Col span={6}>压缩机:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
           <Col span={6}>风机散热:&nbsp;<span style={{ color: '#f5222d' }}>异常</span></Col>
           <Col span={6}>散热状态:&nbsp;<span style={{ color: '#a0d911' }}>正常</span></Col>
+        </Row>
+        <Row gutter={{ md: 8, lg: 24, xl: 48 }} type="flex" justify="space-between">
+          <Col span={12}>制冷系统:&nbsp;<span style={{ color: '#096dd9' }}>-38.8℃</span><span style={{ color: '#a0d911',marginLeft: 20 }}>正常</span></Col>
         </Row>
       </Fragment>
     )
@@ -111,7 +114,7 @@ class UpdateForm extends PureComponent {
     console.log(formVals)
     return (
       <Modal
-        width={640}
+        width={700}
         destroyOnClose
         centered
         // bodyStyle={{ padding: '32px 40px 48px' }}

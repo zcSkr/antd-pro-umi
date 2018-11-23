@@ -10,14 +10,18 @@ import {
   Select,
   InputNumber,
   Divider,
+  DatePicker,
 } from 'antd';
 import { isEqual, isEmpty } from 'underscore';
 import WangEditor from '@/components/WangEditor/WangEditor';
+import BraftEditor from '@/components/BraftEditor';
+import UploadImg from '@/components/UploadImg/UpLoadImg';
 
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const InputGroup = Input.Group;
+const TextArea = Input.TextArea;
 
 @Form.create()
 export default class Settings extends PureComponent {
@@ -25,7 +29,8 @@ export default class Settings extends PureComponent {
     super(props);
     this.state = {
       formVals: {},
-      activeKey: '1'
+      activeKey: '1',
+      fileList: [],
     };
 
     this.formLayout = {
@@ -47,8 +52,12 @@ export default class Settings extends PureComponent {
     this.setState({ activeKey: key })
   }
 
+  handleBraftEditor = (value,editorId) => {
+    console.log(value,editorId)
+    
+  }
   renderContent = (formVals) => {
-    const { form: { getFieldDecorator } } = this.props;
+    const { form: { getFieldDecorator }, factoryAuthority } = this.props;
     return (
       <Tabs tabBarStyle={{ textAlign: 'center' }} activeKey={this.state.activeKey} onChange={this.handleTabChange}>
         <TabPane tab="设备属性名称" key="1">
@@ -153,7 +162,7 @@ export default class Settings extends PureComponent {
         </TabPane>
         <TabPane tab="主机属性名称" key="2">
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col span={10} offset={1}>
+            <Col span={10} offset={6}>
               <FormItem {...this.formLayout} label="开机状态">
                 {getFieldDecorator('account')(<Input placeholder="请输入属性名称" />)}
               </FormItem>
@@ -171,8 +180,9 @@ export default class Settings extends PureComponent {
               </FormItem>
             </Col>
           </Row>
+          <Divider />
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col span={10} offset={1}>
+            <Col span={10} offset={6}>
               <FormItem {...this.formLayout} label="压缩机">
                 {getFieldDecorator('account')(<Input placeholder="请输入属性名称" />)}
               </FormItem>
@@ -190,8 +200,9 @@ export default class Settings extends PureComponent {
               </FormItem>
             </Col>
           </Row>
+          <Divider />
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col span={10} offset={1}>
+            <Col span={10} offset={6}>
               <FormItem {...this.formLayout} label="散热方式">
                 {getFieldDecorator('account')(<Input placeholder="请输入属性名称" />)}
               </FormItem>
@@ -209,8 +220,9 @@ export default class Settings extends PureComponent {
               </FormItem>
             </Col>
           </Row>
+          <Divider />
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col span={10} offset={1}>
+            <Col span={10} offset={6}>
               <FormItem {...this.formLayout} label="散热状态">
                 {getFieldDecorator('account')(<Input placeholder="请输入属性名称" />)}
               </FormItem>
@@ -228,8 +240,9 @@ export default class Settings extends PureComponent {
               </FormItem>
             </Col>
           </Row>
+          <Divider />
           <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-            <Col span={10} offset={1}>
+            <Col span={10} offset={6}>
               <FormItem {...this.formLayout} label="制冷系统">
                 {getFieldDecorator('account')(<Input placeholder="请输入属性名称" />)}
               </FormItem>
@@ -424,7 +437,7 @@ export default class Settings extends PureComponent {
               </FormItem>
               <FormItem {...this.formLayout} label="散热方式">
                 {getFieldDecorator('account1', { initialValue: 1 })(
-                  <Select style={{ width: '100%' }}>
+                  <Select style={{ width: 270 }}>
                     <Option value={1}>风机散热</Option>
                     <Option value={0}>直冷散热</Option>
                   </Select>
@@ -489,7 +502,7 @@ export default class Settings extends PureComponent {
               </FormItem>
               <FormItem {...this.formLayout} label="散热方式">
                 {getFieldDecorator('account1', { initialValue: 1 })(
-                  <Select style={{ width: '100%' }}>
+                  <Select style={{ width: 270 }}>
                     <Option value={1}>风机散热</Option>
                     <Option value={0}>直冷散热</Option>
                   </Select>
@@ -499,11 +512,101 @@ export default class Settings extends PureComponent {
           </Row>
         </TabPane>
         <TabPane tab="使用说明" key="5">
-          <WangEditor id="desc" editor={(editor) => this.setState({ editor })}></WangEditor>
+          {/* <WangEditor id="desc" editor={(editor) => this.setState({ editor })}></WangEditor> */}
+          <BraftEditor editorId="desc" handleBraftEditor={this.handleBraftEditor}></BraftEditor>
         </TabPane>
         <TabPane tab="保养信息" key="6">
-          <WangEditor id="maintain" editor={(editor) => this.setState({ editor })}></WangEditor>
+          {/* <WangEditor id="maintain" editor={(editor) => this.setState({ editor })}></WangEditor> */}
+          <BraftEditor editorId="maintain" handleBraftEditor={this.handleBraftEditor}></BraftEditor>
         </TabPane>
+        {
+          factoryAuthority ?
+            <TabPane tab="基础信息" key="7">
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="设备别名">
+                    {getFieldDecorator('deviceNickname', {
+                      initialValue: formVals.deviceNickname,
+                    })(<Input placeholder="请输入设备别名" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="保修期至">
+                    {getFieldDecorator('warranty', {
+                      initialValue: formVals.warranty,
+                    })(
+                      <DatePicker
+                        style={{ width: '100%' }}
+                        showTime
+                        format="YYYY-MM-DD HH:mm:ss"
+                        placeholder="请选择保修期"
+                      // onChange={onChange}
+                      // onOk={onOk}
+                      />
+                    )}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="封面图片">
+                    {getFieldDecorator('state', {
+                      initialValue: formVals.img || 1,
+                    })(
+                      <UploadImg
+                        action="//jsonplaceholder.typicode.com/posts/"
+                        totalNum={1}
+                        multiple={false}
+                        supportSort={true}
+                        fileList={this.state.fileList}
+                        beforeUpload={this.beforeUpload}
+                        onChange={this.handleUpLoadChange}
+                        onSortEnd={this.onSortEnd}
+                      />
+                    )}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="联系商家">
+                    {getFieldDecorator('merchant', {
+                      initialValue: formVals.merchant,
+                    })(<Input placeholder="请输入内容" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="联系技术">
+                    {getFieldDecorator('tech', {
+                      initialValue: formVals.tech,
+                    })(<Input placeholder="请输入内容" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="保修标题">
+                    {getFieldDecorator('title', {
+                      initialValue: formVals.title,
+                    })(<Input placeholder="请输入保修标题" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+                <Col span={14} offset={4}>
+                  <FormItem {...this.formLayout} label="保修说明">
+                    {getFieldDecorator('desc1', {
+                      initialValue: formVals.desc1,
+                    })(<TextArea rows={4} placeholder="请输入保修说明" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+            </TabPane> : null
+        }
       </Tabs >
     );
   };

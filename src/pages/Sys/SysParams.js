@@ -27,6 +27,8 @@ import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { arrayMove } from 'react-sortable-hoc';
 import WangEditor from '@/components/WangEditor/WangEditor';
+import BraftEditor from '@/components/BraftEditor';
+
 import { isEqual, isEmpty } from 'underscore';
 
 import styles from '../Table.less';
@@ -74,6 +76,12 @@ class UpdateForm extends PureComponent {
     console.log(field, value);
     formVals[field] = value
     this.setState({ formVals })
+  }
+  handleBraftEditor = (value,id) => {
+    console.log(id)
+    let { formVals } = this.state;
+    formVals.codeValue = value
+    this.setState({formVals})
   }
   renderContent = (formVals) => {
     const { form } = this.props;
@@ -145,7 +153,8 @@ class UpdateForm extends PureComponent {
               {form.getFieldDecorator('codeValue', {
                 rules: [{ required: true }],
                 initialValue: this.props.values.valueType == 'imgContent' ? formVals.codeValue : '',
-              })(<WangEditor editor={(editor) => this.setState({ editor })}></WangEditor>)}
+              })(<BraftEditor handleBraftEditor={this.handleBraftEditor}></BraftEditor>
+                /* <WangEditor editor={(editor) => this.setState({ editor })}></WangEditor> */)}
             </FormItem> : null
         }
         {
@@ -185,7 +194,7 @@ class UpdateForm extends PureComponent {
     // console.log(formVals)
     return (
       <Modal
-        width={640}
+        width={750}
         destroyOnClose
         // bodyStyle={{ padding: '32px 40px 48px' }}
         title={isEmpty(this.props.values) ? '添加参数' : '编辑参数'}

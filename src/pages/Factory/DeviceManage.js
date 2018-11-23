@@ -36,6 +36,7 @@ import UploadImg from '@/components/UploadImg/UpLoadImg';
 import Prompt from '@/components/DeviceManage/Prompt';
 import Settings from '@/components/DeviceManage/Settings';
 import Duration from '@/components/FactoryAuthority/Duration';
+import DeviceInfo from '@/components/DeviceManage/DeviceInfo';
 import Appoint from '@/components/FactoryAuthority/Appoint';
 import HistoryWarn from '@/pages/Device/HistoryWarn';
 import OperationRecord from '@/pages/Device/OperationRecord';
@@ -216,6 +217,7 @@ export default class DeviceManage extends PureComponent {
     appointVisible: false,
     settingsVisible: false,
 
+    infoVisible: false,
     historyVisible: false,
     recordVisible: false,
   };
@@ -294,7 +296,8 @@ export default class DeviceManage extends PureComponent {
       fixed: 'right',
       render: (text, record) => {
         const menu = (
-          <Menu onClick={this.handleActionClick.bind(this, record)} selectedKeys={[]}>
+          <Menu onClick={this.handleActionClick.bind(this, record)} style={{textAlign: 'center'}} selectedKeys={[]}>
+            <Menu.Item key="info">详情</Menu.Item>
             <Menu.Item key="history">历史报警</Menu.Item>
             <Menu.Item key="record">操作记录</Menu.Item>
           </Menu>
@@ -426,6 +429,9 @@ export default class DeviceManage extends PureComponent {
 
   handleActionClick = (record, e) => {
     switch (e.key) {
+      case 'info':
+        this.setState({ infoVisible: true })
+        break;
       case 'history':
         this.setState({ historyVisible: true })
         break;
@@ -473,6 +479,9 @@ export default class DeviceManage extends PureComponent {
         break;
       case 'settings':
         this.setState({ settingsVisible: false })
+        break;
+      case 'info':
+        this.setState({ infoVisible: false })
         break;
       case 'history':
         this.setState({ historyVisible: false })
@@ -738,6 +747,7 @@ export default class DeviceManage extends PureComponent {
         <Settings
           settingsVisible={this.state.settingsVisible}
           handleVisibleModal={this.handleVisibleModal}
+          factoryAuthority={true}
         />
         <Duration
           durationVisible={this.state.durationVisible}
@@ -745,6 +755,10 @@ export default class DeviceManage extends PureComponent {
         />
         <Appoint
           appointVisible={this.state.appointVisible}
+          handleVisibleModal={this.handleVisibleModal}
+        />
+        <DeviceInfo
+          infoVisible={this.state.infoVisible}
           handleVisibleModal={this.handleVisibleModal}
         />
         <HistoryWarn

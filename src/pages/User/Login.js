@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Alert } from 'antd';
-import Login from '@/components/Login';
+import Login from 'ant-design-pro/lib/Login';
 import styles from './Login.less';
 import app from '@/config/app';
 

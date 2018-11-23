@@ -34,6 +34,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
 import UploadImg from '@/components/UploadImg/UpLoadImg';
 import Duration from '@/components/FactoryAuthority/Duration';
+import DeviceInfo from '@/components/DeviceManage/DeviceInfo';
 import HistoryWarn from '@/pages/Device/HistoryWarn';
 import OperationRecord from '@/pages/Device/OperationRecord';
 import styles from '../Table.less';
@@ -191,6 +192,7 @@ export default class DeviceManage extends PureComponent {
 
     durationVisible: false,
 
+    infoVisible: false,
     historyVisible: false,
     recordVisible: false,
   };
@@ -257,7 +259,8 @@ export default class DeviceManage extends PureComponent {
       fixed: 'right',
       render: (text, record) => {
         const menu = (
-          <Menu onClick={this.handleActionClick.bind(this, record)} selectedKeys={[]}>
+          <Menu onClick={this.handleActionClick.bind(this, record)} style={{textAlign: 'center'}} selectedKeys={[]}>
+            <Menu.Item key="info">详情</Menu.Item>
             <Menu.Item key="history">历史报警</Menu.Item>
             <Menu.Item key="record">操作记录</Menu.Item>
           </Menu>
@@ -378,6 +381,9 @@ export default class DeviceManage extends PureComponent {
   handleActionClick = (record, e) => {
     console.log(e.key)
     switch (e.key) {
+      case 'info':
+        this.setState({ infoVisible: true })
+        break;
       case 'history':
         this.setState({ historyVisible: true })
         break;
@@ -401,6 +407,9 @@ export default class DeviceManage extends PureComponent {
     switch (type) {
       case 'duration':
         this.setState({ durationVisible: false })
+        break;
+      case 'info':
+        this.setState({ infoVisible: false })
         break;
       case 'history':
         this.setState({ historyVisible: false })
@@ -639,6 +648,10 @@ export default class DeviceManage extends PureComponent {
         />
         <Duration
           durationVisible={this.state.durationVisible}
+          handleVisibleModal={this.handleVisibleModal}
+        />
+        <DeviceInfo
+          infoVisible={this.state.infoVisible}
           handleVisibleModal={this.handleVisibleModal}
         />
         <HistoryWarn

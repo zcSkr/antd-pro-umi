@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'umi/link';
-import Exception from '@/components/Exception';
+import Exception from 'ant-design-pro/lib/Exception';
 
 const Exception500 = () => (
   <Exception

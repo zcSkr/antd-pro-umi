@@ -32,6 +32,7 @@
     "antd": "^3.10.0",
     "bizcharts": "^3.2.2",
     "bizcharts-plugin-slider": "^2.0.3",
+    "braft-editor": "^2.1.30",
     "classnames": "^2.2.6",
     "dva": "^2.4.0",
     "enquire-js": "^0.2.1",
