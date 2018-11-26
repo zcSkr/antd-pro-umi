@@ -125,6 +125,7 @@ class StandardTable extends PureComponent {
           rowKey={record => record.id}
           rowSelection={isCheckBox ? rowSelection : null}
           dataSource={list}
+          locale={{emptyText: '暂无数据', filterConfirm: '确定', filterReset: '重置'}}
           columns={columns}
           pagination={paginationProps}
           onChange={this.handleTableChange}

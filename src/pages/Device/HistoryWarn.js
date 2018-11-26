@@ -114,7 +114,7 @@ class UpdateForm extends PureComponent {
     console.log(formVals)
     return (
       <Modal
-        width={700}
+        width={750}
         destroyOnClose
         centered
         // bodyStyle={{ padding: '32px 40px 48px' }}

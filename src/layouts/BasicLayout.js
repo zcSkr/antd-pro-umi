@@ -14,11 +14,14 @@ import logo from '../assets/logo.svg';
 // import Footer from './Footer';
 import Header from './Header';
 import Context from './MenuContext';
-import Exception403 from '../pages/Exception/403';
 import { routerRedux } from 'dva/router';
 import underscore from 'underscore';
+import NProgress from 'nprogress';
+import '@/layouts/nprogress.less';
 const { Content } = Layout;
 const { TabPane } = Tabs;
+
+NProgress.configure({ showSpinner: false });
 // Conversion router to menu.
 function formatter(data) {
   return data
@@ -65,9 +68,10 @@ const query = {
     minWidth: 1600,
   },
 };
-@connect(({ global, setting }) => ({
+@connect(({ global, setting, loading }) => ({
   collapsed: global.collapsed,
   layout: setting.layout,
+  loading,
   ...setting,
 }))
 class BasicLayout extends React.PureComponent {
@@ -300,7 +304,21 @@ class BasicLayout extends React.PureComponent {
       layout: PropsLayout,
       children,
       location: { pathname },
+      loading,
     } = this.props;
+
+    let currHref = '';
+    const { href } = window.location; // 浏览器地址栏中地址
+    if (!underscore.isEqual(currHref,href)) {
+      // currHref 和 href 不一致时说明进行了页面跳转
+      NProgress.start(); // 页面开始加载时调用 start 方法
+      if (!loading.global) {
+        // loading.global 为 false 时表示加载完毕
+        NProgress.done(); // 页面请求完毕时调用 done 方法
+        currHref = href; // 将新页面的 href 值赋值给 currHref
+      }
+    }
+
     const { isMobile, menuData } = this.state;
     const isTop = PropsLayout === 'topmenu';
     const routerConfig = this.matchParamsPath(pathname);

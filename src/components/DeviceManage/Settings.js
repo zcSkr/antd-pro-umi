@@ -513,11 +513,11 @@ export default class Settings extends PureComponent {
         </TabPane>
         <TabPane tab="使用说明" key="5">
           {/* <WangEditor id="desc" editor={(editor) => this.setState({ editor })}></WangEditor> */}
-          <BraftEditor editorId="desc" handleBraftEditor={this.handleBraftEditor}></BraftEditor>
+          {<BraftEditor editorId="desc" handleBraftEditor={this.handleBraftEditor}></BraftEditor>}
         </TabPane>
         <TabPane tab="保养信息" key="6">
           {/* <WangEditor id="maintain" editor={(editor) => this.setState({ editor })}></WangEditor> */}
-          <BraftEditor editorId="maintain" handleBraftEditor={this.handleBraftEditor}></BraftEditor>
+          {<BraftEditor editorId="maintain" handleBraftEditor={this.handleBraftEditor}></BraftEditor>}
         </TabPane>
         {
           factoryAuthority ?
