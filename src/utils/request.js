@@ -4,7 +4,7 @@ import router from 'umi/router';
 import hash from 'hash.js';
 import { isAntdPro } from './utils';
 import app from '@/config/app';
-
+import NProgress from 'nprogress';
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -163,6 +163,7 @@ export default function request(
         window.g_app._store.dispatch({
           type: 'login/logout',
         });
+        NProgress.done()
         return;
       }
       // environment should not be used

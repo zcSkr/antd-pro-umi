@@ -21,6 +21,11 @@ export default {
         targets: {
           ie: 11,
         },
+        locale: {
+          default: 'zh-CN',
+          baseNavigator: true,
+          antd: true,
+        },
         dynamicImport: {
           loadingComponent: './components/PageLoading/index',
         },

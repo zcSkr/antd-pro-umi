@@ -297,7 +297,7 @@ class BasicLayout extends React.PureComponent {
     }
     return <SettingDrawer />;
   }
-
+  
   render() {
     const {
       navTheme,
@@ -309,6 +309,7 @@ class BasicLayout extends React.PureComponent {
 
     let currHref = '';
     const { href } = window.location; // 浏览器地址栏中地址
+    // console.log(href,666666)
     if (!underscore.isEqual(currHref,href)) {
       // currHref 和 href 不一致时说明进行了页面跳转
       NProgress.start(); // 页面开始加载时调用 start 方法
