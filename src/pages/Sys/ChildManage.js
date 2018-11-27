@@ -136,7 +136,7 @@ class UpdateForm extends PureComponent {
         title={isEmpty(this.props.values) ? '添加管理员' : '编辑管理员'}
         visible={updateModalVisible}
         footer={this.renderFooter()}
-        onCancel={() => handleUpdateModalVisible()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
       >
         {this.renderContent(formVals)}
       </Modal>

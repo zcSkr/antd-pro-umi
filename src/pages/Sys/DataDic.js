@@ -407,7 +407,7 @@ export default class DataDic extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="数据字典">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

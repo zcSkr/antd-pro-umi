@@ -319,7 +319,7 @@ export default class DeviceDppeal extends PureComponent {
       loading,
     } = this.props;
     return (
-      <PageHeaderWrapper title="设备申诉">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

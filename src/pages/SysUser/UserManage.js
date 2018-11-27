@@ -324,7 +324,7 @@ export default class UserManage extends PureComponent {
       handleDirectoryModal: this.handleDirectoryModal,
     };
     return (
-      <PageHeaderWrapper title="用户管理">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

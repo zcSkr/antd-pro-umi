@@ -32,7 +32,7 @@ import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import { isEqual, isEmpty } from 'underscore';
-
+import BMapComponent from '@/components/BMap';
 import styles from '../Table.less';
 
 const FormItem = Form.Item;
@@ -50,6 +50,89 @@ const getValue = obj =>
 const statusMap = ['success', 'error'];
 const status = ['启用', '冻结'];
 
+@Form.create()
+class UpdateForm extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      formVals: {},
+    };
+
+    this.formLayout = {
+      labelCol: { span: 6 },
+      wrapperCol: { span: 16 },
+    };
+  }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return { formVals: { ...nextProps.values, ...prevState.formVals } }
+  }
+  handleConfirm = () => {
+    const { form } = this.props;
+    const { formVals } = this.state
+    form.validateFields((err, fieldsValue) => {
+      // console.log(err, fieldsValue)
+      if (err) return;
+      this.setState({ formVals: { ...fieldsValue } });
+    });
+  }
+  handleBMapClick = (lon,lat) => {
+    // console.log(lon,lat)
+  }
+  renderContent = (formVals) => {
+    const { form } = this.props;
+    return [
+      <FormItem key="account" hasFeedback {...this.formLayout} label="设备别名">
+        {form.getFieldDecorator('account', {
+          rules: [{ required: true, message: '请输入设备别名！' }],
+          initialValue: formVals.account,
+        })(<Input placeholder="请输入设备别名" />)}
+      </FormItem>,
+      <FormItem key="state" {...this.formLayout} label="在线状态">
+        {form.getFieldDecorator('state', {
+          initialValue: formVals.state || 1,
+        })(
+          <Select style={{ width: '100%' }}>
+            <Option value={1}>在线</Option>
+            <Option value={0}>离线</Option>
+          </Select>
+        )}
+      </FormItem>,
+      <FormItem key="bMap">
+        {<BMapComponent  onClick={this.handleBMapClick} />}
+      </FormItem>,
+    ];
+  };
+
+  renderFooter = () => {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <Button key="forward" type="primary" onClick={this.handleConfirm}>
+          提交
+        </Button>
+      </div>
+    );
+  };
+
+  render() {
+    const { updateModalVisible, handleUpdateModalVisible } = this.props;
+    const { formVals } = this.state;
+    // console.log(formVals)
+    return (
+      <Modal
+        width={640}
+        destroyOnClose
+        // bodyStyle={{ padding: '32px 40px 48px' }}
+        title={isEmpty(this.props.values) ? '添加虚拟设备' : '编辑虚拟设备'}
+        visible={updateModalVisible}
+        footer={this.renderFooter()}
+        onCancel={() => { this.setState({ formVals: {} }); handleUpdateModalVisible() }}
+      >
+        {this.renderContent(formVals)}
+      </Modal>
+    );
+  }
+}
+
 /* eslint react/no-multi-comp:0 */
 @connect(({ role, manager, loading }) => ({
   role,
@@ -60,6 +143,8 @@ const status = ['启用', '冻结'];
 export default class VirtualDevice extends PureComponent {
   state = {
     formValues: {},
+    updateModalVisible: false, 
+    stepFormValues: {},
   };
 
   columns = [
@@ -105,9 +190,7 @@ export default class VirtualDevice extends PureComponent {
       title: '操作',
       render: (text, record) => (
         <div style={{ minWidth: 100 }}>
-          <Popconfirm title="确定处理?" onConfirm={() => this.handleDeleteRecord(record)} okText="确定" cancelText="取消">
-            <Tag color="#108ee9" style={{ margin: 0 }}>处理</Tag>
-          </Popconfirm>
+        <Tag color="#108ee9" style={{ margin: 0 }} onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</Tag>
           <Divider type="vertical" />
           <Popconfirm title="确定删除?" onConfirm={() => this.handleDeleteRecord(record)} okText="确定" cancelText="取消">
             <Tag color="#f50" style={{ margin: 0 }}>删除</Tag>
@@ -204,6 +287,28 @@ export default class VirtualDevice extends PureComponent {
     });
   };
 
+  handleUpdateModalVisible = (flag, record) => {
+    this.setState({
+      updateModalVisible: !!flag,
+      stepFormValues: record || {},
+    });
+  };
+
+  handleUpdate = fields => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/update',
+      payload: {
+        name: fields.name,
+        desc: fields.desc,
+        key: fields.key,
+      },
+    });
+
+    message.success('配置成功');
+    this.handleUpdateModalVisible();
+  };
+
 
   renderForm() {
     const {
@@ -257,11 +362,23 @@ export default class VirtualDevice extends PureComponent {
       loading,
     } = this.props;
 
+    const { selectedRows, updateModalVisible, stepFormValues } = this.state;
+
+    const updateMethods = {
+      handleUpdateModalVisible: this.handleUpdateModalVisible,
+      handleUpdate: this.handleUpdate,
+    };
+
     return (
-      <PageHeaderWrapper title="虚拟设备">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
+            <div className={styles.tableListOperator}>
+              <Button icon="plus" type="primary" onClick={() => this.handleUpdateModalVisible(true)}>
+                添加虚拟设备
+              </Button>
+            </div>
             <StandardTable
               loading={loading}
               list={list}
@@ -271,6 +388,11 @@ export default class VirtualDevice extends PureComponent {
             />
           </div>
         </Card>
+        <UpdateForm
+          {...updateMethods}
+          updateModalVisible={updateModalVisible}
+          values={stepFormValues}
+        />
       </PageHeaderWrapper>
     );
   }

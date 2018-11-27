@@ -238,7 +238,7 @@ export default class FeedBack extends PureComponent {
     } = this.props;
 
     return (
-      <PageHeaderWrapper title="系统反馈">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

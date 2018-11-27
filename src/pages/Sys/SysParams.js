@@ -497,7 +497,7 @@ export default class SysParams extends PureComponent {
     });
 
     return (
-      <PageHeaderWrapper title="系统参数">
+      <PageHeaderWrapper>
         {/* <MyIcon type="icon-wahaha" style={{fontSize: 40}} /> */}
         <Card bordered={false}>
           <div className={styles.tableList}>

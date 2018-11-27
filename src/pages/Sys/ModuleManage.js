@@ -386,7 +386,7 @@ export default class ModuleManage extends PureComponent {
       handleUpdate: this.handleUpdate,
     };
     return (
-      <PageHeaderWrapper title="角色管理">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -399,7 +399,7 @@ export default class ModuleManage extends PureComponent {
               isCheckBox={false}
               loading={loading}
               list={list}
-              pagination={pagination}
+              pagination={false}
               columns={this.columns}
               onChange={this.handleStandardTableChange}
             />

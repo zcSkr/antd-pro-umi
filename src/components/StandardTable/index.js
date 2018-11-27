@@ -1,6 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { Table, Alert } from 'antd';
 import styles from './index.less';
+import { isBoolean } from 'underscore';
 
 function initTotalList(columns) {
   const totalList = [];
@@ -80,7 +81,6 @@ class StandardTable extends PureComponent {
       // hideOnSinglePage: true, //单页时分页器隐藏
       ...pagination,
     };
-
     const rowSelection = {
       selectedRowKeys,
       onChange: this.handleRowSelectChange,
@@ -127,7 +127,7 @@ class StandardTable extends PureComponent {
           dataSource={list}
           locale={{emptyText: '暂无数据', filterConfirm: '确定', filterReset: '重置'}}
           columns={columns}
-          pagination={paginationProps}
+          pagination={isBoolean(pagination) ? pagination : paginationProps}
           onChange={this.handleTableChange}
           />
       </div>

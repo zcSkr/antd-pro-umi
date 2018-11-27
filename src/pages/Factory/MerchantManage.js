@@ -453,7 +453,7 @@ export default class MerchantManage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="商家管理">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

@@ -727,7 +727,7 @@ export default class DeviceManage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="设备管理">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

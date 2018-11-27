@@ -432,7 +432,7 @@ export default class RoleManage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrapper title="角色管理">
+      <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
